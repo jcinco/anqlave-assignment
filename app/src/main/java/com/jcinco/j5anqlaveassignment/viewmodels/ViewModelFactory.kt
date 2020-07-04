@@ -2,6 +2,7 @@ package com.jcinco.j5anqlaveassignment.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.jcinco.j5anqlaveassignment.viewmodels.browser.FileBrowserViewModel
 import com.jcinco.j5anqlaveassignment.viewmodels.login.LoginViewModel
 
 object ViewModelFactory : ViewModelProvider.Factory {
@@ -9,6 +10,9 @@ object ViewModelFactory : ViewModelProvider.Factory {
 
         if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
             return LoginViewModel() as T
+        }
+        else if (modelClass.isAssignableFrom(FileBrowserViewModel::class.java)) {
+            return FileBrowserViewModel() as T
         }
         throw IllegalArgumentException("Unknown View Model Class")
     }

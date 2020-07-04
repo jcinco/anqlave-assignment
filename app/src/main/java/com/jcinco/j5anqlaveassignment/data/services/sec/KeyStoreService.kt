@@ -1,18 +1,17 @@
 package com.jcinco.j5anqlaveassignment.data.services.sec
 
 import android.content.Context
-import android.content.SharedPreferences
-import android.security.KeyPairGeneratorSpec
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import java.math.BigInteger
-import java.security.KeyPairGenerator
+import android.util.Base64
+
 import java.security.KeyStore
-import java.util.*
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
-import javax.security.auth.x500.X500Principal
+import java.lang.Exception
+import javax.crypto.spec.IvParameterSpec
+
 
 public class KeyStoreService() {
     companion object {
@@ -37,75 +36,109 @@ public class KeyStoreService() {
 
 
     private val KEYSTORE_ALIAS:String = "com.jcinco.default"
-    private val CIPHER_INSTANCE: String = "AES/GCM/NoPadding"
+    private val CIPHER_INSTANCE: String = "AES/CBC/NoPadding"
     private val KEYSTORE_NAME = "AndroidKeyStore"
-    private val KEY_IV = "KEY_IV"
-    private var keyStore: KeyStore = KeyStore.getInstance(KEYSTORE_NAME)
 
 
     public fun isAuthAliasExists(): Boolean {
+        val keyStore: KeyStore = KeyStore.getInstance(KEYSTORE_NAME)
         if (keyStore != null) {
-           return keyStore.containsAlias(KEYSTORE_ALIAS)
+            try {
+                keyStore.load(null)
+                return keyStore.containsAlias(KEYSTORE_ALIAS)
+            }
+            catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
         return false
     }
 
+    public fun aliasExists(alias: String) : Boolean {
+        val keyStore: KeyStore = KeyStore.getInstance(KEYSTORE_NAME)
+        if (keyStore != null) {
+            try {
+                keyStore.load(null)
+                return keyStore.containsAlias(alias)
+            }
+            catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+        return false
+    }
+
+
     /**
      * Encrypts the data and stores the secret into Android's KeyStore
      */
-    public fun encrypt(alias: String, data: String): String {
-        // encrypt
-        if (context == null)
-            throw Exception("Context is not set")
+    public fun encrypt(alias: String, data: String): Pair<String, String> {
+        try {
+            var key: SecretKey = secretKeyForAlias(alias)
+            val cipher = Cipher.getInstance(CIPHER_INSTANCE)
+            cipher.init(Cipher.ENCRYPT_MODE, key)
 
-        keyStore.load(null)
+            // Pad some spaces if the length is not a multiple of 16 to avoid
+            // invalid block size exception.
+            var dataTemp = data
+            while(dataTemp.length % 16 != 0)
+                dataTemp += "\u0020"
 
-        // Attempt to get the secret from keystore
-        val keyGen = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES,
-            KEYSTORE_NAME)
+            val enc = cipher.doFinal(dataTemp.toByteArray(Charsets.UTF_8))
 
-        // if the alias does not exist
-        if (!keyStore.containsAlias(alias)) {
-            val spec = getSpec(alias, KeyProperties.PURPOSE_ENCRYPT)
-            keyGen.init(spec)
+            // Return as pair of Base64 encoded strings for storage
+            return Pair(
+                Base64.encodeToString(cipher.iv, Base64.DEFAULT),
+                Base64.encodeToString(enc, Base64.DEFAULT)
+            )
         }
-        var key: SecretKey = keyStore.getKey(alias, null) as SecretKey? ?: keyGen.generateKey()
-        val cipher = Cipher.getInstance(CIPHER_INSTANCE)
-        cipher.init(Cipher.ENCRYPT_MODE, key)
-
-        return String(cipher.doFinal(data.toByteArray(Charsets.UTF_8)))
+        catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return Pair("", "")
     }
 
 
 
-    public fun decrypt(alias: String, data: String): String {
-        // encrypt
-        if (context == null)
-            throw Exception("Context is not set")
-
-        keyStore.load(null)
-
-        // Attempt to get the secret from keystore
-        val keyGen = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES,
-            KEYSTORE_NAME)
-
-        // if the alias does not exist
-        if (!keyStore.containsAlias(alias)) {
-            val spec = getSpec(alias, KeyProperties.PURPOSE_DECRYPT)
-            keyGen.init(spec)
-        }
-        var key: SecretKey = keyStore.getKey(alias, null) as SecretKey? ?: keyGen.generateKey()
+    public fun decrypt(alias: String, data: String, iv: String): String {
+        var key: SecretKey = secretKeyForAlias(alias)
         val cipher = Cipher.getInstance(CIPHER_INSTANCE)
-        cipher.init(Cipher.DECRYPT_MODE, key)
 
-        return String(cipher.doFinal(data.toByteArray(Charsets.UTF_8)))
+        // Decode from Base64 String
+        val ivBytes = Base64.decode(iv, Base64.DEFAULT)
+        val dataTmp = Base64.decode(data, Base64.DEFAULT)
+        val ivSpec = IvParameterSpec(ivBytes)
+        cipher.init(Cipher.DECRYPT_MODE, key, ivSpec)
+
+        return String(cipher.doFinal(dataTmp)).trim()
+
     }
 
 
 
-    private fun getSpec(alias: String, purpose: Int):KeyGenParameterSpec {
-        return KeyGenParameterSpec.Builder(alias, purpose)
-            .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+    public fun secretKeyForAlias(alias: String): SecretKey {
+        val keyStore: KeyStore = KeyStore.getInstance(KEYSTORE_NAME)
+        keyStore.load(null)
+
+        if (!keyStore.containsAlias(alias)) {
+            val keyGen = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES,
+                KEYSTORE_NAME)
+            val spec = getSpec(alias)
+            keyGen.init(spec)
+            return keyGen.generateKey()
+        }
+        else {
+
+            val keyEntry = keyStore.getEntry(alias, null) as KeyStore.SecretKeyEntry
+            return keyEntry.secretKey
+        }
+    }
+
+
+
+    private fun getSpec(alias: String):KeyGenParameterSpec {
+        return KeyGenParameterSpec.Builder(alias, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
+            .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
             .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
             .build()
     }

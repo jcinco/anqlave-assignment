@@ -1,9 +1,10 @@
 package com.jcinco.j5anqlaveassignment.data.repositories.auth
 
-import com.jcinco.j5anqlaveassignment.data.services.auth.LocalAuthService
+import com.jcinco.j5anqlaveassignment.data.providers.auth.IAuthProvider
+import com.jcinco.j5anqlaveassignment.data.providers.auth.LocalAuthProvider
 
 // The single source of truth
-public class AuthRepository {
+public class AuthRepository private constructor(): IAuthRepository {
 
     companion object {
         private const val TAG = "AuthRepository"
@@ -15,6 +16,11 @@ public class AuthRepository {
         }
     }
 
+    //
+    lateinit var localAuthService: IAuthProvider
+    lateinit var remoteAuthService: IAuthProvider
+
+
     /**
      * Auhenticates the user
      *
@@ -22,10 +28,19 @@ public class AuthRepository {
      * @param String - password
      * @param callback - callback function called after authentication routine has completed.
      */
-    public fun authenticate(username:String, password:String, callback: (success:Boolean)->Unit?) {
-        if (LocalAuthService.getInstance().hasKey()) {
-            LocalAuthService.getInstance().authenticate(username, password, callback)
+    override fun authenticate(username:String, password:String, callback: (success:Boolean)->Unit?) {
+        // First check for local info on credentials.
+        if (localAuthService != null) {
+            localAuthService?.authenticate(username, password, callback)
         }
+        else if (remoteAuthService != null) {
+            remoteAuthService?.authenticate(username, password, callback)
+        }
+        else {
+            // user does not exist
+            callback(false)
+        }
+
     }
 
 

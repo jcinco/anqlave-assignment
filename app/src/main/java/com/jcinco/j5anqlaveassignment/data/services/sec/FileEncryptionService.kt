@@ -1,0 +1,123 @@
+package com.jcinco.j5anqlaveassignment.data.services.sec
+
+import android.util.Base64
+import com.jcinco.j5anqlaveassignment.data.model.file.FileInfo
+import java.io.File
+import java.security.MessageDigest
+import java.security.SecureRandom
+import javax.crypto.Cipher
+import javax.crypto.SecretKeyFactory
+import javax.crypto.spec.GCMParameterSpec
+import javax.crypto.spec.PBEKeySpec
+import javax.crypto.spec.SecretKeySpec
+
+class FileEncryptionService {
+    companion object {
+        const val TAG = "FileEncryptionService"
+
+        @Volatile private var _instance: FileEncryptionService? = null
+        fun getInstance(): FileEncryptionService = _instance ?: synchronized(this) {
+            _instance ?: FileEncryptionService().also { _instance = it }
+        }
+    }
+
+    private val ALGORITHM = "AES/GCM/NoPadding"
+    private val SALT_SIZE:Int = 16 // 16 bytes
+    private val ITERATION_COUNT: Int = 100000 // iteration count
+    private val PBKDF2_HASH_FUNC_NAME: String = "PBKDF2WithHmacSHA256"
+    private val IV_SIZE:Int = 12 // 12 bytes
+    private val TAG_SIZE:Int = 16
+
+    /**
+     *
+     * @return Pair<ByteArray,ByteArray> - first - initialization vector, second - encrypted contents
+     */
+    fun encrypAES(file: FileInfo, password: String): ByteArray {
+        val salt = ByteArray(SALT_SIZE)
+        val random = SecureRandom()
+
+        // get random salt
+        random.nextBytes(salt)
+
+        // get file contents as byte array
+        val fileContents = File(file.path).readBytes()
+        // key should be 256 bits
+        val pwSpec = PBEKeySpec(password.toCharArray(), salt, ITERATION_COUNT, 256)
+        val key = SecretKeyFactory.getInstance(PBKDF2_HASH_FUNC_NAME)
+            .generateSecret(pwSpec).encoded
+
+        // init vector of 12 bytes
+        val iv = ByteArray(IV_SIZE)
+        random.nextBytes(iv)
+
+        val cipher = Cipher.getInstance(ALGORITHM)
+        val secretKeySpec = SecretKeySpec(key, "AES")
+        val gcmSpec = GCMParameterSpec(TAG_SIZE, iv)
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, gcmSpec)
+
+        val enc = cipher.doFinal(fileContents)
+
+        // concat salt + iv + enc to single byte array
+        //
+        val finalEnc = ByteArray(SALT_SIZE + IV_SIZE + enc.size)
+
+        System.arraycopy(salt, 0, finalEnc, 0, SALT_SIZE)
+        System.arraycopy(iv, 0, finalEnc,  SALT_SIZE, IV_SIZE)
+        System.arraycopy(enc, 0, finalEnc, SALT_SIZE + IV_SIZE, enc.size)
+
+        return finalEnc
+    }
+
+
+
+    /**
+     *
+     */
+    fun decryptAES(file:FileInfo, password:String): ByteArray {
+        val fileContent = File(file.path).readBytes()
+
+        // Extract the salt and init vector from the byte array
+        val salt = ByteArray(SALT_SIZE)
+        val iv = ByteArray(IV_SIZE)
+        val enc = ByteArray(fileContent.size - (SALT_SIZE + IV_SIZE))
+
+        System.arraycopy(fileContent, 0, salt, 0, SALT_SIZE)
+        System.arraycopy(fileContent, SALT_SIZE, iv, 0, IV_SIZE)
+        System.arraycopy(fileContent, SALT_SIZE+IV_SIZE, enc, 0,fileContent.size - (SALT_SIZE + IV_SIZE))
+
+        // key should be 256 bits
+        val pwSpec = PBEKeySpec(password.toCharArray(), salt, ITERATION_COUNT, 256)
+        val key = SecretKeyFactory.getInstance(PBKDF2_HASH_FUNC_NAME)
+            .generateSecret(pwSpec).encoded
+
+        val cipher = Cipher.getInstance(ALGORITHM)
+        val secretKeySpec = SecretKeySpec(key, "AES")
+        val gcmSpec = GCMParameterSpec(TAG_SIZE, iv)
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, gcmSpec)
+
+        val final = cipher.doFinal(enc)
+        return final
+    }
+
+
+    /**
+     * Returns a SHA-256 hash of a string.
+     *
+     * @param String - the input string to hash
+     * @return String - the hashed version of the input string
+     */
+    fun hash(input:String) : String {
+        val md = MessageDigest.getInstance("SHA-256")
+        try {
+            md.update(input.toByteArray(Charsets.UTF_8))
+            val digest = md.digest()
+            val final = Base64.encodeToString(digest, Base64.DEFAULT)
+            return final
+        }
+        catch(e: Exception) {
+            e.printStackTrace()
+        }
+        return ""
+    }
+
+}
