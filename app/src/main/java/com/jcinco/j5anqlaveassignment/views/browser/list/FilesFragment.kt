@@ -46,15 +46,18 @@ class FilesFragment: Fragment() {
         val rootFileInfo = FileInfo(null, null, null, false, rootDir)
 
         this.viewModel?.fileRepo = fileRepository
-        this.viewModel?.getFiles(rootFileInfo)
+        this.viewModel?.openDir(rootFileInfo)
 
         // listen for updates to the list of files
         this.viewModel?.files?.observe(viewLifecycleOwner, Observer { files ->
             filesRecyclerView.also {
                 it.layoutManager = LinearLayoutManager(requireContext())
+                (it.layoutManager as LinearLayoutManager).orientation = LinearLayoutManager.VERTICAL
                 it.setHasFixedSize(true)
-                it.adapter = FileAdapter(files, {
-                    this.viewModel?.getFiles(it)
+                it.adapter = FileAdapter(files, { it, action ->
+                    if (it.isDir == true)
+                        this.viewModel?.openDir(it)
+                    // else
                 })
             }
         })

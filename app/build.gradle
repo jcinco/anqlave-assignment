@@ -3,13 +3,13 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 28
     buildToolsVersion "29.0.3"
 
     defaultConfig {
         applicationId "com.jcinco.j5anqlaveassignment"
         minSdkVersion 26
-        targetSdkVersion 29
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
 
@@ -42,6 +42,9 @@ dependencies {
     implementation 'androidx.navigation:navigation-fragment-ktx:2.1.0'
     implementation 'androidx.navigation:navigation-ui-ktx:2.1.0'
     implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
+
+    // icon fonts from fontawesome
+    implementation "info.androidhive:fontawesome:0.0.5"
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test.ext:junit:1.1.1'

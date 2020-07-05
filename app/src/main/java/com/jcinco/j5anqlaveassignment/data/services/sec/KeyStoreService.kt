@@ -136,6 +136,7 @@ public class KeyStoreService() {
 
 
 
+
     private fun getSpec(alias: String):KeyGenParameterSpec {
         return KeyGenParameterSpec.Builder(alias, KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT)
             .setBlockModes(KeyProperties.BLOCK_MODE_CBC)

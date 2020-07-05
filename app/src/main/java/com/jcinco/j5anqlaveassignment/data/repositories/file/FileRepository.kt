@@ -20,9 +20,12 @@ class FileRepository private constructor(): IFileRepository {
 
     lateinit var localFileProvider: IFileProvider
     lateinit var remoteFileProvider: IFileProvider
-    var currentDir: FileInfo? = null
+    private var currentDir: FileInfo? = null
 
     private var mode:String = MODE_LOCAL
+
+
+    override fun currentDirectory(): FileInfo? = this.currentDir
 
 
     override fun getFilesAtRoot(mode: String) : ArrayList<FileInfo> {
@@ -42,12 +45,19 @@ class FileRepository private constructor(): IFileRepository {
 
 
 
-    override fun getFiles(fileInfo: FileInfo) : ArrayList<FileInfo> {
+    override fun getFiles(fileInfo: FileInfo?) : ArrayList<FileInfo> {
+        var list: ArrayList<FileInfo>? = ArrayList<FileInfo>()
+
         if (this.mode == MODE_LOCAL) {
-            this.currentDir = fileInfo
-            return localFileProvider.getFiles("${fileInfo.path}/") ?: ArrayList<FileInfo>()
+            if (fileInfo != null) {
+
+                list = localFileProvider.getFiles("${fileInfo.path}")
+            }
+            else {
+                list = localFileProvider.getStorages() ?: ArrayList()
+            }
         }
-        return ArrayList<FileInfo>()
+        return list!!
     }
 
 

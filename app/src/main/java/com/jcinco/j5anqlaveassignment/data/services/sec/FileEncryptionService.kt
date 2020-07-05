@@ -23,10 +23,11 @@ class FileEncryptionService {
 
     private val ALGORITHM = "AES/GCM/NoPadding"
     private val SALT_SIZE:Int = 16 // 16 bytes
-    private val ITERATION_COUNT: Int = 100000 // iteration count
+    private val ITERATION_COUNT: Int = 100000 // iteration count 100,000
     private val PBKDF2_HASH_FUNC_NAME: String = "PBKDF2WithHmacSHA256"
     private val IV_SIZE:Int = 12 // 12 bytes
     private val TAG_SIZE:Int = 16
+    private val MARKER: String = "enc"
 
     /**
      *
@@ -56,14 +57,15 @@ class FileEncryptionService {
         cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, gcmSpec)
 
         val enc = cipher.doFinal(fileContents)
-
+        val marker = MARKER.toByteArray(Charsets.UTF_8)
         // concat salt + iv + enc to single byte array
         //
-        val finalEnc = ByteArray(SALT_SIZE + IV_SIZE + enc.size)
+        val finalEnc = ByteArray(marker.size + SALT_SIZE + IV_SIZE + enc.size)
 
-        System.arraycopy(salt, 0, finalEnc, 0, SALT_SIZE)
-        System.arraycopy(iv, 0, finalEnc,  SALT_SIZE, IV_SIZE)
-        System.arraycopy(enc, 0, finalEnc, SALT_SIZE + IV_SIZE, enc.size)
+        System.arraycopy(marker, 0, finalEnc, 0, marker.size)
+        System.arraycopy(salt, 0, finalEnc, marker.size, SALT_SIZE)
+        System.arraycopy(iv, 0, finalEnc,  marker.size + SALT_SIZE, IV_SIZE)
+        System.arraycopy(enc, 0, finalEnc, marker.size + SALT_SIZE + IV_SIZE, enc.size)
 
         return finalEnc
     }
@@ -79,11 +81,13 @@ class FileEncryptionService {
         // Extract the salt and init vector from the byte array
         val salt = ByteArray(SALT_SIZE)
         val iv = ByteArray(IV_SIZE)
-        val enc = ByteArray(fileContent.size - (SALT_SIZE + IV_SIZE))
+        val marker = ByteArray(MARKER.length)
+        val enc = ByteArray(fileContent.size - (SALT_SIZE + IV_SIZE + marker.size))
 
-        System.arraycopy(fileContent, 0, salt, 0, SALT_SIZE)
-        System.arraycopy(fileContent, SALT_SIZE, iv, 0, IV_SIZE)
-        System.arraycopy(fileContent, SALT_SIZE+IV_SIZE, enc, 0,fileContent.size - (SALT_SIZE + IV_SIZE))
+        System.arraycopy(fileContent, 0, marker, 0, marker.size)
+        System.arraycopy(fileContent, marker.size, salt, 0, SALT_SIZE)
+        System.arraycopy(fileContent, marker.size + SALT_SIZE, iv, 0, IV_SIZE)
+        System.arraycopy(fileContent, marker.size + SALT_SIZE + IV_SIZE, enc, 0,fileContent.size - (SALT_SIZE + IV_SIZE + marker.size))
 
         // key should be 256 bits
         val pwSpec = PBEKeySpec(password.toCharArray(), salt, ITERATION_COUNT, 256)

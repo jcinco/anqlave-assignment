@@ -6,4 +6,12 @@ class RemoteFileProvider: IFileProvider {
     override fun getFiles(path: String): ArrayList<FileInfo>? {
         TODO("Not yet implemented")
     }
+
+    override fun getStorages(): ArrayList<FileInfo>? {
+        return null
+    }
+
+    override fun isAvailable(): Boolean {
+        return false
+    }
 }
