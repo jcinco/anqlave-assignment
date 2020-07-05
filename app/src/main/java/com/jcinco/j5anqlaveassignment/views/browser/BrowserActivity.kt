@@ -1,5 +1,7 @@
 package com.jcinco.j5anqlaveassignment.views.browser
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -61,9 +63,15 @@ class BrowserActivity: BaseActivity() {
         binding.setLifecycleOwner(this)
         binding.viewModel = this.viewModel
 
+        this.recyclerView.setHasFixedSize(true)
+        this.recyclerView.setItemViewCacheSize(20)
+        this.recyclerView.isDrawingCacheEnabled = true
+        this.recyclerView.drawingCacheQuality = View.DRAWING_CACHE_QUALITY_HIGH
+
+
         // Add the toolbar
-        val toolbar = this.toolbar
-        setSupportActionBar(toolbar)
+        val bar = this.toolbar
+        setSupportActionBar(bar)
 
        // this.actionBar.setIcon(iconDrawable)
 
@@ -71,9 +79,9 @@ class BrowserActivity: BaseActivity() {
         // Environment.getExternalStorageDir() has been deprecated in SDK 29
         fileProvider =
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P)
-                MediaStoreFileProvider(this)
+                MediaStoreFileProvider(applicationContext)
             else
-                LocalFileProvider()
+                LocalFileProvider(applicationContext)
 
         // Setup the repo
         val fileRepo = FileRepository.getInstance()
@@ -104,8 +112,8 @@ class BrowserActivity: BaseActivity() {
                 it.layoutManager = LinearLayoutManager(applicationContext)
                 (it.layoutManager as LinearLayoutManager).orientation = LinearLayoutManager.VERTICAL
                 it.setHasFixedSize(true)
-                it.adapter = FileAdapter(files) { it, action ->
 
+                it.adapter = FileAdapter(files) { it, action ->
                     if (this.viewModel.isBusy.value == false) {
                         if (it.isDir == true)
                             this.viewModel?.openDir(it)
@@ -125,7 +133,9 @@ class BrowserActivity: BaseActivity() {
         val signOutIcon = FontDrawable(applicationContext,
             R.string.fa_sign_out_alt_solid, true, false)
         signOutIcon.textSize = 30f
+        signOutIcon.clearColorFilter()
         signOutIcon.setTextColor(R.color.white)
+
 
         menuInflater.inflate(R.menu.browser_menu, menu)
         val item = menu?.getItem(0)
@@ -135,14 +145,14 @@ class BrowserActivity: BaseActivity() {
     }
 
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         this.finish()
         return true
     }
 
 
 
-    override fun onContextItemSelected(item: MenuItem?): Boolean {
+    override fun onContextItemSelected(item: MenuItem): Boolean {
         if (isContextSelection && !this.viewModel?.isBusy?.value!!) {
            if (item?.itemId == 200) { // encrypt
                this.viewModel.encrypt()

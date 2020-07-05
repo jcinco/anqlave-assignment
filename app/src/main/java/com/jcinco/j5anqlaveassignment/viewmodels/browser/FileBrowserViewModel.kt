@@ -67,7 +67,7 @@ class FileBrowserViewModel: ViewModel() {
         // Stop any running coroutine job
         this.stopActiveJob()
         this.isBusy.value = true
-        this.files.value = ArrayList<FileInfo>() // empty list
+        //this.files.value = ArrayList<FileInfo>() // empty list
 
         // initialize by fetching the root folder list of files
         this.job = Coroutines.runInBackground(
@@ -122,22 +122,6 @@ class FileBrowserViewModel: ViewModel() {
                     this.isBusy.value = false
                 })
 
-
-//            val encryptor = FileEncryptionService.getInstance()
-//            val derivedPasswd = getPassword()
-//
-//            // get encoded bytes
-//            val encBytes = encryptor.encrypAES(this.selectedFile!!, derivedPasswd)
-//
-//            // Save file here
-//            val file = File(this.selectedFile?.path)
-//            val out = file.outputStream()
-//            out.write(encBytes)
-//            out.close()
-//            this.getFiles(this.currentDir)
-//
-//            // unselect the file
-//            this.selectedFile = null
         }
     }
 
@@ -173,22 +157,6 @@ class FileBrowserViewModel: ViewModel() {
                     this.isBusy.value = false
                 })
 
-
-//            val encryptor = FileEncryptionService.getInstance()
-//            val derivedPasswd = getPassword()
-//
-//            // get decoded bytes
-//            val encBytes = encryptor.decryptAES(this.selectedFile!!, derivedPasswd)
-//
-//            // Save file here
-//            val file = File(this.selectedFile?.path)
-//            val out = file.outputStream()
-//            out.write(encBytes)
-//            out.close()
-//            this.getFiles(this.currentDir)
-//
-//            // unselect the file
-//            this.selectedFile = null
         }
     }
 

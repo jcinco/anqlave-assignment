@@ -38,10 +38,11 @@ class FileAdapter(
     override fun onBindViewHolder(holder: FileViewHolder, position: Int) {
         val fileInfo = files[holder.adapterPosition]
         var iconRef = if (fileInfo.isDir == true) R.string.fa_folder else R.string.fa_file
+        var iconColor = if (fileInfo.isDir == true) R.color.yellow else R.color.colorPrimaryDark
         if (fileInfo.isEncrypted)
             iconRef = R.string.fa_file_archive
         val iconDrawable = FontDrawable(context, iconRef, false, false)
-
+        iconDrawable.setTextColor(iconColor)
         iconDrawable.textSize = 30f
         holder.itemFileBinding.fileInfo = fileInfo
         holder.itemView.fileIcon.setImageDrawable(iconDrawable)

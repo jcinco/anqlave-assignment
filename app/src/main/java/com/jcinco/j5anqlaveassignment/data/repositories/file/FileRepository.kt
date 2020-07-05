@@ -50,12 +50,11 @@ class FileRepository private constructor(): IFileRepository {
 
         if (this.mode == MODE_LOCAL) {
             if (fileInfo != null) {
-
                 list = localFileProvider.getFiles("${fileInfo.path}")
             }
-            else {
-                list = localFileProvider.getStorages() ?: ArrayList()
-            }
+        }
+        else {
+
         }
         return list!!
     }

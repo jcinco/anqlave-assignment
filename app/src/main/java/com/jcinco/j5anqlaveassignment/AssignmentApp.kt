@@ -14,7 +14,6 @@ class AssignmentApp: Application() {
         // We want to avoid passing the context from the activity.
         KeyStoreService.getInstance().context = applicationContext
         SharedPrefUtil.getInstance().context = applicationContext
-        LocalFileProvider.context = applicationContext
     }
 
 

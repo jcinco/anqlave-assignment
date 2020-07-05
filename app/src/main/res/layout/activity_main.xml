@@ -7,15 +7,13 @@
     android:background="#3F31BC"
     tools:context=".views.MainActivity" >
 
-    <TextView
-        android:id="@+id/textView"
+    <ImageView
+        android:id="@+id/logo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/fa_folder_open"
-        android:textColor="#FFFFFF"
-        android:textSize="36sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@android:mipmap/sym_def_app_icon" />
 </androidx.constraintlayout.widget.ConstraintLayout>

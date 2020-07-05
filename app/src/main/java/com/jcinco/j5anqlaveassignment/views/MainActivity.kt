@@ -4,11 +4,19 @@ import android.content.Intent
 import android.os.Bundle
 import com.jcinco.j5anqlaveassignment.R
 import com.jcinco.j5anqlaveassignment.views.login.LoginActivity
+import info.androidhive.fontawesome.FontDrawable
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val splashIcon = FontDrawable(this, R.string.fa_folder_open_solid, true, true)
+        splashIcon.setTextColor(R.color.white)
+        splashIcon.textSize = 50F
+        splashIcon.invalidateSelf()
+        this.logo.setImageDrawable(splashIcon)
     }
 
 

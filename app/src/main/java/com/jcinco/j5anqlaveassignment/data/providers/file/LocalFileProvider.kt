@@ -8,10 +8,7 @@ import com.jcinco.j5anqlaveassignment.data.model.file.FileInfo
 import java.io.File
 import java.nio.file.*
 
-class LocalFileProvider: IFileProvider{
-    companion object {
-        var context: Context? = null
-    }
+class LocalFileProvider(val context: Context): IFileProvider{
 
     override val ROOT_FOLDER: String
         get() = Environment.getExternalStorageDirectory().absolutePath
@@ -52,7 +49,7 @@ class LocalFileProvider: IFileProvider{
     override fun getStorages(): ArrayList<FileInfo>? {
         var list = ArrayList<FileInfo>()
         val file = Environment.getExternalStorageDirectory()
-        Log.d("path", file?.absolutePath)
+
         val storages = file?.listFiles()
         if (storages != null) {
             storages?.forEach {
@@ -68,7 +65,7 @@ class LocalFileProvider: IFileProvider{
      * @param String - path to check
      * @return Boolean - true if the path is a directory, false when otherwise.
      */
-    fun isDir(path: String) : Boolean {
+    override fun isDir(path: String) : Boolean {
         val pathObj = File(path).toPath()
         return Files.exists(pathObj) && pathObj != null
     }
