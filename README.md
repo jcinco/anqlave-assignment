@@ -1,5 +1,5 @@
 # anqlave-assignment
-I have adopted the MVVM / Repository pattern using Android's architecture components. This provides lose coupling, and allowing each components to be unit testable.
+I have adopted the MVVM / Repository pattern using Android's architecture components. This provides loose coupling, and allowing each component to be unit testable.
 ## High level design
 ![img](https://github.com/jcinco/anqlave-assignment/blob/master/uml/app_structure.png)
 
