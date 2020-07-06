@@ -34,7 +34,7 @@ I have adopted the MVVM / Repository pattern using Android's architecture compon
 #### File browser class diagram
 ![img](https://github.com/jcinco/anqlave-assignment/blob/master/uml/file_browser_class.png)
 #### File browser sequence diagram
-
+![img](https://github.com/jcinco/anqlave-assignment/blob/master/uml/file_browser_seq.png)
 ### US3 - As a user, I should be able to encrypt or decrypt a file.
 
 
