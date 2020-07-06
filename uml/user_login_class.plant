@@ -1,0 +1,13 @@
+@startuml
+
+IAuthProvider -left- LocalAuthProvider
+IAuthRepository -left- AuthRepository
+
+AuthRepository o-- IAuthProvider
+LoginViewModel o-down- IAuthRepository
+LoginView *-down- LoginViewModel
+
+LocalAuthProvider *-down- KeyStoreService
+LocalAuthProvider *-down- SharedPrefUtil
+
+@enduml

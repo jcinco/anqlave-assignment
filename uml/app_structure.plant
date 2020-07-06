@@ -1,0 +1,27 @@
+@startuml
+
+package "UI" {
+  [View]
+  [Activity] - viewmodel
+  [Activity] -up-> View
+}
+
+[ViewModel] - repo
+[ViewModel] -up-> viewmodel
+
+[Repository] - provider
+[Repository] -up-> repo
+[LocalProvider] -up-> provider
+[RemoteProvider] -up-> provider
+
+
+database "LocalStorage" {
+  [SharedPreferences] -up-> LocalProvider
+}
+
+cloud {
+  [GDrive] -up-> RemoteProvider
+}
+
+
+@enduml

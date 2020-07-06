@@ -1,0 +1,30 @@
+@startuml
+
+
+interface IFileProvider
+interface IFileRepository
+class LocalFileProvider
+class FileRepository
+class FileBrowserViewModel
+class FileBrowserView
+class FileEncryptionService
+class SharedPrefUtil
+class android.os.Environment
+class android.os.MediaStore
+
+
+IFileProvider -left- LocalFileProvider
+IFileProvider -right- MediaStoreFileProvider
+IFileRepository -down- FileRepository
+
+
+FileRepository o-- IFileProvider
+FileBrowserViewModel o-down- IFileRepository
+FileBrowserView *-down- FileBrowserViewModel
+
+LocalFileProvider *-down- android.os.Environment
+MediaStoreFileProvider *-down- android.os.MediaStore
+FileBrowserViewModel o-down- FileEncryptionService
+FileBrowserViewModel o-down- SharedPrefUtil
+
+@enduml

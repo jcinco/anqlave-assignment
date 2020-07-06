@@ -1,0 +1,37 @@
+@startuml
+package "J5Assignment" {
+package "Views" {
+  [LoginActivity] - ViewModel
+  [BrowserActivity] - ViewModel2
+
+}
+
+package "ViewModels" {
+  [LoginViewModel] - AuthRepo
+  [LoginViewModel] --> ViewModel
+   [FileBrowserViewModel] - FileRepo
+  [FileBrowserViewModel] -up-> ViewModel2
+}
+
+package "Data" {
+  package "Repositories" {
+    [AuthRepository] -up-> AuthRepo
+    [AuthRepository] - IAuthProvider
+
+    [FileRepository] -up-> FileRepo
+  }
+
+  package "Providers" {
+    [LocalAuthProvider] -up-> IAuthProvider
+    [LocalAuthProvider]
+    [GDriveAuthProvider]
+    [LocalFileProvider]
+  }
+   package "Security" {
+      [KeyStoreService] -up-> LocalAuthProvider
+      [FileEncryptionService] -up-> LocalFileProvider
+    }
+}
+}
+
+@enduml

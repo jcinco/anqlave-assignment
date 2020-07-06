@@ -1,0 +1,81 @@
+@startuml
+
+
+actor user
+
+user -> LoginActivity: onCreate()
+activate LoginActivity
+  LoginActivity -> LoginActivity: setupBinding()
+  activate LoginActivity
+    LoginActivity -> AuthRepository: initialize()
+    activate AuthRepository
+      AuthRepository -> LocalAuthProvider: initialize()
+
+      activate LocalAuthProvider
+        alt crdentials does not exist
+          LocalAuthProvider -> LocalAuthProvider: createAndStore
+          LocalAuthProvider -> KeyStoreService: createKeyAndEncrypt
+          activate KeyStoreService
+              KeyStoreService -> LocalAuthProvider: hashed password
+          deactivate KeyStoreService
+
+          LocalAuthProvider -> SharedPrefUtil: save()
+          activate SharedPrefUtil
+          deactivate SharedPrefUtil
+
+        end
+        LocalAuthProvider -> AuthRepository
+      deactivate LocalAuthProvider
+
+    AuthRepository -> LoginActivity
+    deactivate AuthRepository
+  deactivate LoginActivity
+LoginActivity -> user
+deactivate LoginActivity
+
+
+
+
+
+user -> LoginActivity: login()
+activate LoginActivity
+  LoginActivity -> AuthRepository: authenticate(inCredentials)
+
+  activate AuthRepository
+    AuthRepository -> LocalAuthProvider: authenticate(inCredentials)
+        activate LocalAuthProvider
+          LocalAuthProvider -> SharedPrefUtil: getStoredCredentials()
+          activate SharedPrefUtil
+            SharedPrefUtil -> LocalAuthProvider: storedCredentials
+          deactivate SharedPrefUtil
+
+          LocalAuthProvider -> KeyStoreService: getHash(inCredentials)
+          activate KeyStoreService
+            KeyStoreService -> LocalAuthProvider: hashedCredentials
+          deactivate KeyStoreService
+
+          LocalAuthProvider -> LocalAuthProvider: compare(storedCredentials, hashedCredentials)
+
+          LocalAuthProvider --> AuthRepository: result
+        deactivate LocalAuthProvider
+      AuthRepository --> LoginActivity: result
+  deactivate AuthRepository
+
+  alt success
+    LoginActivity -> LoginActivity: startActivity(BrowserActivity)
+  else unsuccessful
+    LoginActivity-> LoginActivity: display error
+  end
+deactivate LoginActivity
+
+autonumber
+
+
+
+
+
+
+
+
+
+@enduml
