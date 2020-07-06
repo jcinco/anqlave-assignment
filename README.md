@@ -36,7 +36,17 @@ I have adopted the MVVM / Repository pattern using Android's architecture compon
 #### File browser sequence diagram
 ![img](https://github.com/jcinco/anqlave-assignment/blob/master/uml/file_browser_seq.png)
 ### US3 - As a user, I should be able to encrypt or decrypt a file.
-
+Requirements:
+- Using AES encryption
+  - 256-bit key
+  - Mode - GCM
+  - IV -12 bytes
+  - Tag Size -16
+- Encryption key (256-bit key) should be derived from the predefined password using PBKDF2
+  - PBKDF2 parameters:
+  - Salt - 16 bytes
+  - Iteration - 100000
+  - Hashing Function - SHA-256
 
 
 ### US4 [Backlog] - As a user, I should be able to browse my GDrive files.
