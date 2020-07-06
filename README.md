@@ -1,6 +1,6 @@
 # anqlave-assignment
 I have adopted the MVVM / Repository pattern using Android's architecture components. This provides loose coupling, and allowing each component to be unit testable.
-This design pattern essentially separates the business logic from the view. The common mistake is bloating the activity / view controller (in iOS) with business logic, and data blurring the MV* pattern in the long run. 
+This design pattern essentially separates the business logic from the view. The common mistake is bloating the activity / view controller (in iOS) with business logic and data, blurring the MV* pattern.
 
 ## High level design
 ![img](https://github.com/jcinco/anqlave-assignment/blob/master/uml/app_structure.png)
