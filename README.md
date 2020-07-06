@@ -28,7 +28,7 @@ This design pattern essentially separates the business logic from the view. The 
 - If permission was not granted, request persmission at runtime.
 2. Check for the Android version. 
 - If the version level is below 29, we utilize LocalFileProvider which employs direct access to external storage using Environment.
-- If the version level is >= 29, we use the MediaStoreFileProvider which uses the media store content provider. This is a change in Android 10, deprecating the Environment.getExternalStorageDirectory(), which no longer works in higher versions of Android starting 29.
+- If the version level is >= 29, we use the MediaStoreFileProvider which utilizes the media store content provider. This is a change in Android 10, deprecating the Environment.getExternalStorageDirectory(), which no longer works in higher versions of Android starting 29.
 3. Initialize by loading files from the defined root folder in the provider.
 4. Ensure navigation in and out of folders.
 - Employed a back stack which keeps track of the parent folders.
