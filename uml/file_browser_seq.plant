@@ -1,0 +1,62 @@
+@startuml
+
+
+actor user
+
+user -> FileBrowserView: taps a folder
+activate FileBrowserView
+  FileBrowserView -> FileBrowserViewModel: getFiles(fileInfo)
+  activate FileBrowserViewModel
+    FileBrowserViewModel -> FileRepository: getFiles(fileInfo)
+    activate FileRepository
+
+      FileRepository -> IFileProvider: getFiles(fileInfo)
+      activate IFileProvider
+        IFileProvider --> FileRepository: ArrayList<FileInfo>
+      deactivate IFileProvider
+      FileRepository -> FileBrowserViewModel: ArrayList<FileInfo>
+    deactivate FileRepository
+  FileBrowserViewModel -> FileBrowserView: notify updated list
+deactivate FileBrowserViewModel
+FileBrowserView -> FileBrowserView: update list
+deactivate FileBrowserView
+
+user -> FileBrowserView: encrypt / decrypt file
+activate FileBrowserView
+  FileBrowserView -> FileBrowserViewModel: encrypt() selected file
+  activate FileBrowserViewModel
+
+    FileBrowserViewModel -> SharedPrefUtil: getEncryptedPassword()
+    activate SharedPrefUtil
+      SharedPrefUtil --> FileBrowserViewModel: encPassword
+    deactivate SharedPrefUtil
+
+    FileBrowserViewModel -> KeyStoreService: decrypt(encPassword)
+    activate KeyStoreService
+      KeyStoreService --> FileBrowserViewModel: decrypted password
+    deactivate KeyStoreService
+
+
+    FileBrowserViewModel -> FileEncryptionService: encrypt(file, password)
+    activate FileEncryptionService
+      FileEncryptionService --> FileBrowserViewModel: ByteArray
+    deactivate FileEncryptionService
+
+    FileBrowserViewModel -> FileBrowserViewModel: saveFile(ByteArray)
+    FileBrowserViewModel -> FileBrowserView: update list
+
+  deactivate FileBrowserViewModel
+  FileBrowserView -> user: updated file
+deactivate FileBrowserView
+
+autonumber
+
+
+
+
+
+
+
+
+
+@enduml

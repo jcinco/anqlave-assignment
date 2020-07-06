@@ -21,8 +21,8 @@ public class LoginViewModel : ViewModel() {
     init {
         this.errorVisibility.value = View.GONE
         // Debug
-        this.username.value = "admin"
-        this.password.value = "p@s5W0rd"
+       // this.username.value = "admin"
+        //this.password.value = "p@s5W0rd"
 
         this.isAuthenticated.value = false
     }
