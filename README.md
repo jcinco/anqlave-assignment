@@ -15,13 +15,28 @@ I have adopted the MVVM / Repository pattern using Android's architecture compon
 - The secret key is stored in Android's KeyStore for encrypting / decrypting the default password used to derive PBKDF2 secret key in encrypting and decrypting files. The decryptable password is stored separately.
 
 
-#### - Login screen class diagram
+#### Login screen class diagram
 ![img](https://github.com/jcinco/anqlave-assignment/blob/master/uml/userlogin_class_diagram.png)
 
-#### - Login screen sequence diagram
+#### Login screen sequence diagram
 ![img](https://github.com/jcinco/anqlave-assignment/blob/master/uml/user_login_sequence.png)
 
 ### US2 - As a user, I should be able to browse my local files.
+1. Check for READ and WRITE permissions to external storage permissions.
+- If permission was not granted, request persmission at runtime.
+2. Check for the Android version. 
+- If the version level is below 29, we utilize LocalFileProvider which employs direct access to external storage using Environment.
+- If the version level is >= 29, we use the MediaStoreFileProvider which uses the media store content provider. This is a change in Android 10, deprecating the Environment.getExternalStorageDirectory(), which no longer works in higher versions of Android starting 29.
+3. Initialize by loading files from the defined root folder in the provider.
+4. Ensure navigation in and out of folders.
+- Employed a back stack which keeps track of the parent folders.
+- Utilized the system back button to go back up a folder when tapped. 
+#### File browser class diagram
+![img](https://github.com/jcinco/anqlave-assignment/blob/master/uml/file_browser_class.png)
+#### File browser sequence diagram
+
 ### US3 - As a user, I should be able to encrypt or decrypt a file.
+
+
 
 ### US4 [Backlog] - As a user, I should be able to browse my GDrive files.
