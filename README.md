@@ -12,6 +12,7 @@ I have adopted the MVVM / Repository pattern using Android's architecture compon
 ![img](https://github.com/jcinco/anqlave-assignment/blob/master/uml/userlogin_class_diagram.png)
 
 #### - Login screen sequence diagram
+![img](https://github.com/jcinco/anqlave-assignment/blob/master/uml/user_login_sequence.png)
 
 ### US2 - As a user, I should be able to browse my local files.
 ### US3 - As a user, I should be able to encrypt or decrypt a file.
