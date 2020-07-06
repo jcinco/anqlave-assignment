@@ -63,6 +63,7 @@ class BrowserActivity: BaseActivity() {
         binding.setLifecycleOwner(this)
         binding.viewModel = this.viewModel
 
+        // Recycler view optimization attempts :D
         this.recyclerView.setHasFixedSize(true)
         this.recyclerView.setItemViewCacheSize(20)
         this.recyclerView.isDrawingCacheEnabled = true
@@ -86,17 +87,18 @@ class BrowserActivity: BaseActivity() {
         // Setup the repo
         val fileRepo = FileRepository.getInstance()
         fileRepo.localFileProvider = fileProvider
-
         this.viewModel.fileRepo = fileRepo
 
-
+        // Initialize the root directory
         val rootFileInfo = FileInfo(fileProvider.ROOT_FOLDER,
             fileProvider.ROOT_FOLDER, null, true, null)
 
+        // if the list of files is empty on initialization,
+        // then load the root
         if (this.viewModel.files?.value == null)
             this.viewModel.openDir(rootFileInfo)
 
-
+        // Bind the progress indicator with the isBusy state
         this.viewModel.isBusy.observe(this, Observer {
             if (it) {
                 this.progressBar.visibility = View.VISIBLE
@@ -106,7 +108,7 @@ class BrowserActivity: BaseActivity() {
             }
         })
 
-        // listen for updates to the list of files
+        // listen for updates to the list of files and update the list on changes
         this.viewModel?.files?.observe(this, Observer { files ->
             recyclerView.also {
                 it.layoutManager = LinearLayoutManager(applicationContext)
@@ -166,7 +168,10 @@ class BrowserActivity: BaseActivity() {
         return super.onContextItemSelected(item)
     }
 
-
+    /**
+     * Trap the system nav back button press and use it to
+     * navigate up a folder in our browser.
+     */
     override fun onBackPressed() {
         this.viewModel.goBack()
     }

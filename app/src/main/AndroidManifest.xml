@@ -23,7 +23,14 @@
             </intent-filter>
         </activity>
         <activity android:name=".views.login.LoginActivity"/>
-        <activity android:name=".views.browser.BrowserActivity"/>
+        <activity android:name=".views.browser.BrowserActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="com.jcinco.j5anqlaveassignment.oauth" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

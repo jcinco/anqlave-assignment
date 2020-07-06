@@ -30,10 +30,23 @@ class FileEncryptionService {
     private val MARKER: String = "enc"
 
     /**
+     * Encrypts a file:
+     * Using AES encryption
+     *      256-bit key
+     *      Mode - GCM
+     *      IV -12 bytes
+     *      Tag Size -16
+     *      Encryption key (256-bit key) should be derived from the predefined password using PBKDF2
+     * PBKDF2 parameters:
+     *      Salt - 16 bytes
+     *      Iteration - 100000
+     *      Hashing Function - SHA-256
      *
+     * @param FileInfo - the file to encrypt
+     * @param String - the password
      * @return Pair<ByteArray,ByteArray> - first - initialization vector, second - encrypted contents
      */
-    fun encrypAES(file: FileInfo, password: String): ByteArray {
+    fun encrypAES(file: File, password: String): ByteArray {
         val salt = ByteArray(SALT_SIZE)
         val random = SecureRandom()
 
@@ -41,7 +54,7 @@ class FileEncryptionService {
         random.nextBytes(salt)
 
         // get file contents as byte array
-        val fileContents = File(file.path).readBytes()
+        val fileContents = file.readBytes()
         // key should be 256 bits
         val pwSpec = PBEKeySpec(password.toCharArray(), salt, ITERATION_COUNT, 256)
         val key = SecretKeyFactory.getInstance(PBKDF2_HASH_FUNC_NAME)
@@ -58,7 +71,9 @@ class FileEncryptionService {
 
         val enc = cipher.doFinal(fileContents)
         val marker = MARKER.toByteArray(Charsets.UTF_8)
-        // concat salt + iv + enc to single byte array
+
+        //
+        // concat marker + salt + iv and place it in the file's header
         //
         val finalEnc = ByteArray(marker.size + SALT_SIZE + IV_SIZE + enc.size)
 
@@ -73,10 +88,13 @@ class FileEncryptionService {
 
 
     /**
+     * Decrypts the file that was encrypted using encryptAES().
      *
+     * @param FileInfo - the file to decrypt
+     * @param String - the password
      */
-    fun decryptAES(file:FileInfo, password:String): ByteArray {
-        val fileContent = File(file.path).readBytes()
+    fun decryptAES(file:File, password:String): ByteArray {
+        val fileContent = file.readBytes()
 
         // Extract the salt and init vector from the byte array
         val salt = ByteArray(SALT_SIZE)

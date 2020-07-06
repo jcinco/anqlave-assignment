@@ -105,7 +105,7 @@ class FileBrowserViewModel: ViewModel() {
                     val derivedPasswd = getPassword()
 
                     // get encoded bytes
-                    encryptor.encrypAES(this.selectedFile!!, derivedPasswd)
+                    encryptor.encrypAES(this.selectedFile?.file!!, derivedPasswd)
                 },
                 {
                     // Save file here
@@ -141,7 +141,7 @@ class FileBrowserViewModel: ViewModel() {
                     val derivedPasswd = getPassword()
 
                     // get encoded bytes
-                    encryptor.decryptAES(this.selectedFile!!, derivedPasswd)
+                    encryptor.decryptAES(this.selectedFile?.file!!, derivedPasswd)
                 },
                 {
                     // Save file here
