@@ -145,7 +145,7 @@ class MediaStoreFileProvider(val context: Context): IFileProvider {
         var result: ArrayList<FileInfo> = ArrayList<FileInfo>()
         try {
             val cursor = context.contentResolver
-                .query(contentUri, projection, selection, selectionArgs, "$columnName ASC")
+                .query(contentUri, projection, selection, selectionArgs, null)
             if (cursor != null && cursor?.count > 0) {
                 while (cursor.moveToNext()) {
                     val columnIndex = cursor.getColumnIndexOrThrow(columnName)
