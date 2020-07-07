@@ -7,6 +7,7 @@ object GlobalKeys {
     const val IV = "IV"
     const val KEYSTORE_ALIAS = "com.jcinco.keystore"
 
+    const val TOKEN_TYPE = "TOKEN_TYPE"
     const val ACCESS_TOKEN = "ACCESS_TOKEN"
     const val REFRESH_TOKEN = "REFRESH_TOKEN"
     const val AT_IV = "AT_IV"

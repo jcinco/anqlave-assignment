@@ -42,6 +42,15 @@ class SharedPrefUtil {
         return false
     }
 
+    fun remove(key:String): Boolean {
+        if (context != null) {
+            val pref = getPref(SHARED_PREF_NAME)
+            pref?.edit()?.remove(key)
+            return true
+        }
+        return false
+    }
+
     /**
      * Returns the value associated to the specified key.
      *

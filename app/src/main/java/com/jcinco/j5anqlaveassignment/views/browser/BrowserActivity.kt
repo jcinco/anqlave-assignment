@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.jcinco.j5anqlaveassignment.R
 import com.jcinco.j5anqlaveassignment.data.model.file.FileInfo
+import com.jcinco.j5anqlaveassignment.data.providers.file.GDriveFileProvider
 import com.jcinco.j5anqlaveassignment.data.providers.file.IFileProvider
 import com.jcinco.j5anqlaveassignment.data.providers.file.LocalFileProvider
 import com.jcinco.j5anqlaveassignment.data.providers.file.MediaStoreFileProvider
@@ -74,15 +75,18 @@ class BrowserActivity: BaseActivity() {
         val bar = this.toolbar
         setSupportActionBar(bar)
 
-       // this.actionBar.setIcon(iconDrawable)
+        val isGDrive = intent.getBooleanExtra("GDRIVE", false)
 
-        // set the provider to MediaStoreFileProvider for versions greater than P
-        // Environment.getExternalStorageDir() has been deprecated in SDK 29
-        fileProvider =
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P)
-                MediaStoreFileProvider(applicationContext)
-            else
-                LocalFileProvider(applicationContext)
+        if (isGDrive) {
+            fileProvider = GDriveFileProvider(applicationContext)
+        }
+        else
+            // set the provider to MediaStoreFileProvider for versions greater than P
+            // Environment.getExternalStorageDir() has been deprecated in SDK 29
+            fileProvider = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P)
+                    MediaStoreFileProvider(applicationContext)
+                else
+                    LocalFileProvider(applicationContext)
 
         // Setup the repo
         val fileRepo = FileRepository.getInstance()

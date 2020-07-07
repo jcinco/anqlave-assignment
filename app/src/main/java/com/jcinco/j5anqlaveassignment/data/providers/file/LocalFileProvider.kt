@@ -8,7 +8,7 @@ import com.jcinco.j5anqlaveassignment.data.model.file.FileInfo
 import java.io.File
 import java.nio.file.*
 
-class LocalFileProvider(val context: Context): IFileProvider{
+class LocalFileProvider(context: Context): FileProvider(context){
 
     override val ROOT_FOLDER: String
         get() = Environment.getExternalStorageDirectory().absolutePath
@@ -36,6 +36,11 @@ class LocalFileProvider(val context: Context): IFileProvider{
             return infoList
         }
         return null
+    }
+
+    override fun getFilesAsync(path: String, callback: (ArrayList<FileInfo>) -> Unit?) {
+       // refactored code to accommodate GDrive getfile calls
+        callback(getFiles(path) ?: ArrayList<FileInfo>())
     }
 
     override fun isAvailable(): Boolean {

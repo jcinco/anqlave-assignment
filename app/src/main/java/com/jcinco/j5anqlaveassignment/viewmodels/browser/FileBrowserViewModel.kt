@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.jcinco.j5anqlaveassignment.GlobalKeys
 import com.jcinco.j5anqlaveassignment.data.model.file.FileInfo
+import com.jcinco.j5anqlaveassignment.data.repositories.auth.IAuthRepository
 import com.jcinco.j5anqlaveassignment.data.repositories.file.IFileRepository
 import com.jcinco.j5anqlaveassignment.data.services.sec.FileEncryptionService
 import com.jcinco.j5anqlaveassignment.data.services.sec.KeyStoreService
@@ -23,6 +24,7 @@ class FileBrowserViewModel: ViewModel() {
     private lateinit var encJob: Job
 
     lateinit var fileRepo: IFileRepository
+    lateinit var authRepo: IAuthRepository
     var files = MutableLiveData<ArrayList<FileInfo>>()
     var currentDirectory = MutableLiveData<String>()
     var currentDir: FileInfo? = null
@@ -158,6 +160,10 @@ class FileBrowserViewModel: ViewModel() {
                 })
 
         }
+    }
+
+    fun signOut() {
+        this.authRepo?.invalidate("")
     }
 
 

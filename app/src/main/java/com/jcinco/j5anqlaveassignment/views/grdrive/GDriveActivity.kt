@@ -1,6 +1,8 @@
 package com.jcinco.j5anqlaveassignment.views.grdrive
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -13,6 +15,7 @@ import com.jcinco.j5anqlaveassignment.databinding.ActivityGDriveBinding
 import com.jcinco.j5anqlaveassignment.viewmodels.ViewModelFactory
 import com.jcinco.j5anqlaveassignment.viewmodels.browser.FileBrowserViewModel
 import com.jcinco.j5anqlaveassignment.viewmodels.gdrive.GDriveViewModel
+import com.jcinco.j5anqlaveassignment.views.browser.BrowserActivity
 
 class GDriveActivity : AppCompatActivity() {
 
@@ -25,12 +28,28 @@ class GDriveActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupDataBinding()
+
+    }
+
+    override fun onResume() {
+        super.onResume()
         // if data is not null, we assume that a redirect from google launched this activity
         if (intent.data != null) {
             this.viewModel.handleOAuthResponse(intent)
         }
         else
-            this.viewModel.requestAuth()
+            this.viewModel.requestAuth(){
+                if (it) {
+                    val i = Intent(applicationContext, BrowserActivity::class.java)
+                    i.putExtra("GDRIVE", true)
+                    startActivity(i)
+                    finish()
+                }
+                else {
+                    Toast.makeText(applicationContext, "Failed to get permission to access GDrive", Toast.LENGTH_LONG).show()
+                    finish()
+                }
+            }
     }
 
     private fun setupDataBinding() {
@@ -44,13 +63,6 @@ class GDriveActivity : AppCompatActivity() {
         binding.setLifecycleOwner(this)
         binding.viewModel = this.viewModel
 
-        // observe for value
-        this.viewModel.hasAccess.observe(this, Observer {
-            if (it == false) {
-                // Request OAuth for token
 
-            }
-
-        })
     }
 }

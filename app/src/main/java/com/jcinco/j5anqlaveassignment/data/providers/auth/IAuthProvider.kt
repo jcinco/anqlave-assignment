@@ -7,4 +7,5 @@ interface IAuthProvider {
     fun invalidate(username: String, callback: (success: Boolean) -> Unit?)
     fun isAuthenticated():Boolean
     fun handleAuthResponse(intent: Intent?)
+    fun getAuthorizationHeader():String?
 }

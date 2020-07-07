@@ -53,5 +53,9 @@ class AuthRepository private constructor(): IAuthRepository {
         authService.handleAuthResponse(intent)
     }
 
+    override fun getAuthorizationHeader(): String? {
+        return authService.getAuthorizationHeader()
+    }
+
 
 }

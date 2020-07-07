@@ -6,7 +6,7 @@ import com.jcinco.j5anqlaveassignment.data.services.sec.FileEncryptionService
 import com.jcinco.j5anqlaveassignment.data.services.sec.KeyStoreService
 import com.jcinco.j5anqlaveassignment.utils.SharedPrefUtil
 
-public class LocalAuthProvider: IAuthProvider {
+class LocalAuthProvider: IAuthProvider {
     // Static members here
     companion object {
         // Singleton implementation
@@ -81,6 +81,10 @@ public class LocalAuthProvider: IAuthProvider {
     }
 
     override fun handleAuthResponse(intent: Intent?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun getAuthorizationHeader(): String? {
         TODO("Not yet implemented")
     }
 }

@@ -29,9 +29,9 @@ class GDriveViewModel: ViewModel() {
         this.hasAccess.value = this.hasAccessToken()
     }
 
-    fun requestAuth() {
+    fun requestAuth(callback: (success: Boolean)->Unit?) {
         // run OAuth request
-        this.authRepository?.authenticate("",""){}
+        this.authRepository?.authenticate("","", callback)
     }
 
     fun handleOAuthResponse(intent: Intent?) {

@@ -1,45 +1,34 @@
 package com.jcinco.j5anqlaveassignment.data.providers.auth
 
-import android.accounts.AccountManager
-import android.accounts.AccountManagerFuture
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Bundle
-import android.os.Handler
-import android.util.Log
+
 import com.google.gson.GsonBuilder
 import com.jcinco.j5anqlaveassignment.GlobalKeys
 import com.jcinco.j5anqlaveassignment.R
-import com.jcinco.j5anqlaveassignment.data.services.sec.FileEncryptionService
+
 import com.jcinco.j5anqlaveassignment.data.services.sec.KeyStoreService
 import com.jcinco.j5anqlaveassignment.rest.RetrofitFactory
 import com.jcinco.j5anqlaveassignment.rest.oauth.OAuthAPI
 import com.jcinco.j5anqlaveassignment.rest.oauth.OAuthInterceptor
 import com.jcinco.j5anqlaveassignment.rest.oauth.OAuthToken
 import com.jcinco.j5anqlaveassignment.utils.SharedPrefUtil
-import okhttp3.HttpUrl
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
-import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.converter.scalars.ScalarsConverterFactory
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.POST
-import java.net.URL
 
 class OAuthProvider(val context: Context): IAuthProvider {
     private val ACCESS_TOKEN = "ACCESS_TOKEN"
     private val OAUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
     private val BASE_URL = "https://www.googleapis.com/"
 
+    private val AUTHORIZATION_CODE = "authorization_code"
     private val kClientId = "client_id"
     private val kScope = "scope"
     private val kRedirectUri = "redirect_uri"
     private val kResponseType = "response_type"
+    private val kCode = "code"
     private var oauthToken: OAuthToken? = null
 
     lateinit var requestorCallback: (success:Boolean)->Unit?
@@ -56,13 +45,19 @@ class OAuthProvider(val context: Context): IAuthProvider {
             request()
         }
         else {
-            callback(false)
+            callback(true)
         }
     }
 
 
     override fun invalidate(username: String, callback: (success: Boolean) -> Unit?) {
-        TODO("Not yet implemented")
+        val sharedPref = SharedPrefUtil.getInstance()
+        val success =  sharedPref.remove(GlobalKeys.ACCESS_TOKEN) &&
+        sharedPref.remove(GlobalKeys.REFRESH_TOKEN) &&
+        sharedPref.remove(GlobalKeys.AT_IV) &&
+        sharedPref.remove(GlobalKeys.RT_IV)
+
+        callback(success)
     }
 
     override fun isAuthenticated(): Boolean {
@@ -73,9 +68,13 @@ class OAuthProvider(val context: Context): IAuthProvider {
         if (intent?.data != null &&
                 intent?.data is Uri) {
             val uri = intent?.data
-            val code = uri?.getQueryParameter("code") as String
+            val code = uri?.getQueryParameter(kCode) as String
             getAccessToken(code)
         }
+    }
+
+    override fun getAuthorizationHeader(): String? {
+        return "${getTokenType()} ${getAccessToken()}"
     }
 
 
@@ -94,11 +93,10 @@ class OAuthProvider(val context: Context): IAuthProvider {
             config.client_id,
             config.redirect_uri,
             code,
-            "authorization_code")
-
-
+            AUTHORIZATION_CODE)
 
         val callback = object: Callback<OAuthToken> {
+            var self: OAuthProvider? = null
             override fun onFailure(call: Call<OAuthToken>, t: Throwable) {
                 requestorCallback(false)
             }
@@ -107,11 +105,24 @@ class OAuthProvider(val context: Context): IAuthProvider {
                 oauthToken = response.body()
                 secureSaveTokens(oauthToken)
                 // save the token and respond successful
-                requestorCallback(true)
+                self?.requestorCallback?.invoke(true)
             }
         }
+        callback.self = this
         call.enqueue(callback)
     }
+
+
+
+    fun getTokenType():String {
+        if (hasAccessToken()) {
+            val sharedPref = SharedPrefUtil.getInstance()
+            return sharedPref.get(GlobalKeys.TOKEN_TYPE) ?: ""
+
+        }
+        return ""
+    }
+
 
 
     fun getAccessToken():String {
@@ -133,6 +144,7 @@ class OAuthProvider(val context: Context): IAuthProvider {
         val encAccessToken = keystore.encrypt(alias, oauthToken?.access_token!!)
         val encRefreshToken = keystore.encrypt(alias, oauthToken?.refresh_token!!)
 
+        sharePref.save(GlobalKeys.TOKEN_TYPE, oauthToken?.token_type)
         // save the tokens
         sharePref.save(GlobalKeys.ACCESS_TOKEN, encAccessToken.second)
         sharePref.save(GlobalKeys.AT_IV, encAccessToken.first)

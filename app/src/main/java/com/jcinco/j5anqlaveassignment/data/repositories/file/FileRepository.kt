@@ -56,7 +56,7 @@ class FileRepository private constructor(): IFileRepository {
         else {
 
         }
-        return list!!
+        return list ?: ArrayList<FileInfo>()
     }
 
 

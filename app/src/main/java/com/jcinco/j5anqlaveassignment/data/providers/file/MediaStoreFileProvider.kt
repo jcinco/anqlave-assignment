@@ -9,7 +9,7 @@ import androidx.annotation.RequiresApi
 import com.jcinco.j5anqlaveassignment.data.model.file.FileInfo
 import java.io.File
 
-class MediaStoreFileProvider(val context: Context): IFileProvider {
+class MediaStoreFileProvider(context: Context): FileProvider(context) {
     companion object {
         const val IMAGES: String = "Images"
         const val VIDEO: String = "Video"
@@ -47,7 +47,10 @@ class MediaStoreFileProvider(val context: Context): IFileProvider {
     }
 
 
-
+    override fun getFilesAsync(path: String, callback: (ArrayList<FileInfo>) -> Unit?) {
+        // refactored code to accommodate GDrive getfile calls
+        callback(getFiles(path) ?: ArrayList<FileInfo>())
+    }
 
 
     override fun isDir(path: String): Boolean {
@@ -131,11 +134,6 @@ class MediaStoreFileProvider(val context: Context): IFileProvider {
     override fun isAvailable(): Boolean {
         return true
     }
-
-    override fun getStorages(): ArrayList<FileInfo>? {
-        return null
-    }
-
 
     private fun getFromMediaStore(projection: Array<String>,
                                   contentUri: Uri,

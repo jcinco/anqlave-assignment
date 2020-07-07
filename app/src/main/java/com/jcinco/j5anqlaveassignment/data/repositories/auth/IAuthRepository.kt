@@ -6,4 +6,5 @@ interface IAuthRepository {
     fun authenticate(username:String, password:String, callback: (success:Boolean)->Unit?)
     fun invalidate(username:String)
     fun handleAuthResponse(intent: Intent?)
+    fun getAuthorizationHeader():String?
 }
