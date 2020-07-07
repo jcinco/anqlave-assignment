@@ -8,7 +8,7 @@ abstract class FileProvider(val context: Context): IFileProvider {
         TODO("Not yet implemented")
     }
 
-    override fun getFilesAsync(path: String, callback: (ArrayList<FileInfo>) -> Unit?) {
+    override fun getFiles(path: String, callback: (ArrayList<FileInfo>) -> Unit?) {
         TODO("Not yet implemented")
     }
 

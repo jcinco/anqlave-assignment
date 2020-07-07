@@ -38,7 +38,7 @@ class LocalFileProvider(context: Context): FileProvider(context){
         return null
     }
 
-    override fun getFilesAsync(path: String, callback: (ArrayList<FileInfo>) -> Unit?) {
+    override fun getFiles(path: String, callback: (ArrayList<FileInfo>) -> Unit?) {
        // refactored code to accommodate GDrive getfile calls
         callback(getFiles(path) ?: ArrayList<FileInfo>())
     }

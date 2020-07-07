@@ -1,8 +1,19 @@
 package com.jcinco.j5anqlaveassignment.data.providers.file
 
+import android.content.ComponentCallbacks
 import android.content.Context
+import android.util.Log
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.jcinco.j5anqlaveassignment.data.model.file.FileInfo
+import com.jcinco.j5anqlaveassignment.data.model.file.GDFile
+import com.jcinco.j5anqlaveassignment.data.providers.auth.OAuthProvider
 import com.jcinco.j5anqlaveassignment.rest.RetrofitFactory
+import com.jcinco.j5anqlaveassignment.rest.gdrive.GDGetFiles
+import com.jcinco.j5anqlaveassignment.rest.oauth.OAuthInterceptor
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
 class GDriveFileProvider(context: Context): FileProvider(context) {
@@ -10,21 +21,39 @@ class GDriveFileProvider(context: Context): FileProvider(context) {
         get() = "HOME"
 
     private val BASE_URL = "https://www.googleapis.com/"
+    private var oAuthProvider: OAuthProvider
 
-    private fun fetchFilesFromServer(): ArrayList<FileInfo> {
+    init {
+        this.oAuthProvider = OAuthProvider(context)
+    }
+
+
+    override fun getFiles(path: String, callback: (ArrayList<FileInfo>)->Unit?) {
         var files = ArrayList<FileInfo>()
-        val retrofit = RetrofitFactory.getInstance(context)
-        //val interceptor = OAuthInterceptor()
-        //val getFiles = retrofit.createClient()
-        return files
+        val factory = RetrofitFactory.getInstance(context)
+
+        val interceptor = OAuthInterceptor(
+            oAuthProvider.getAccessToken(),
+            oAuthProvider.getTokenType())
+
+        val retrofit = factory.createClient(BASE_URL, factory.getOAuthHttpClient(interceptor))
+        val getFiles = retrofit.create(GDGetFiles::class.java)
+        val call = getFiles.files()
+        val listener = object: Callback<Any?> {
+            override fun onResponse(
+                call: Call<Any?>,
+                response: Response<Any?>
+            ) {
+                callback(ArrayList<FileInfo>())
+            }
+
+            override fun onFailure(call: Call<Any?>, t: Throwable) {
+                TODO("Not yet implemented")
+            }
+        }
+        call.enqueue(listener)
     }
 
-    override fun getFiles(path: String): ArrayList<FileInfo>? {
-        if (path.equals(ROOT_FOLDER)) {
-            return fetchFilesFromServer()
-        }
-        return null
-    }
 
     override fun isDir(path: String): Boolean {
         TODO("Not yet implemented")

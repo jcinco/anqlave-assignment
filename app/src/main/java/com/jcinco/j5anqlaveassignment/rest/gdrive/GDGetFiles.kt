@@ -6,10 +6,10 @@ import retrofit2.Call
 import retrofit2.http.*
 
 interface GDGetFiles {
-    @FormUrlEncoded
+
     @GET("drive/v2/files")
-    fun files(): Call<Array<GDFile>>
+    fun files(): Call<Any?>
 
     @GET("drive/v2/files/{id}")
-    fun file(@Path("id") id:Long)
+    fun file(@Path("id") id:Long): Call<GDFile>
 }

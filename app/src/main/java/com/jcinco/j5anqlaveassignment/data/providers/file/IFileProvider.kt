@@ -15,7 +15,7 @@ interface IFileProvider {
      * @return ArrayList<FileInfo> - list of file info in that directory
      */
     fun getFiles(path: String): ArrayList<FileInfo>?
-    fun getFilesAsync(path: String, callback: (ArrayList<FileInfo>)->Unit?)
+    fun getFiles(path: String, callback: (ArrayList<FileInfo>)->Unit?)
 
     /**
      * Checks if the path is a directory

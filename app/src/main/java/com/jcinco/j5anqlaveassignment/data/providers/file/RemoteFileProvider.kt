@@ -7,6 +7,10 @@ class RemoteFileProvider: IFileProvider {
         return null
     }
 
+    override fun getFiles(path: String, callback: (ArrayList<FileInfo>) -> Unit?) {
+        TODO("Not yet implemented")
+    }
+
     override fun isDir(path: String): Boolean {
         return false
     }

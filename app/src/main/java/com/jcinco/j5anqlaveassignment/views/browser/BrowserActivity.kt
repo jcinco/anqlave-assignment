@@ -15,10 +15,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.jcinco.j5anqlaveassignment.R
 import com.jcinco.j5anqlaveassignment.data.model.file.FileInfo
+import com.jcinco.j5anqlaveassignment.data.providers.auth.LocalAuthProvider
+import com.jcinco.j5anqlaveassignment.data.providers.auth.OAuthProvider
 import com.jcinco.j5anqlaveassignment.data.providers.file.GDriveFileProvider
 import com.jcinco.j5anqlaveassignment.data.providers.file.IFileProvider
 import com.jcinco.j5anqlaveassignment.data.providers.file.LocalFileProvider
 import com.jcinco.j5anqlaveassignment.data.providers.file.MediaStoreFileProvider
+import com.jcinco.j5anqlaveassignment.data.repositories.auth.AuthRepository
 import com.jcinco.j5anqlaveassignment.data.repositories.file.FileRepository
 import com.jcinco.j5anqlaveassignment.databinding.ActivityFileBrowserBinding
 import com.jcinco.j5anqlaveassignment.viewmodels.ViewModelFactory
@@ -29,6 +32,7 @@ import info.androidhive.fontawesome.FontDrawable
 import kotlinx.android.synthetic.main.activity_file_browser.*
 import kotlinx.android.synthetic.main.files_fragment.*
 import java.io.File
+import java.security.AuthProvider
 
 
 class BrowserActivity: BaseActivity() {
@@ -75,12 +79,15 @@ class BrowserActivity: BaseActivity() {
         val bar = this.toolbar
         setSupportActionBar(bar)
 
+
         val isGDrive = intent.getBooleanExtra("GDRIVE", false)
 
         if (isGDrive) {
             fileProvider = GDriveFileProvider(applicationContext)
+
         }
         else
+
             // set the provider to MediaStoreFileProvider for versions greater than P
             // Environment.getExternalStorageDir() has been deprecated in SDK 29
             fileProvider = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P)
@@ -89,6 +96,7 @@ class BrowserActivity: BaseActivity() {
                     LocalFileProvider(applicationContext)
 
         // Setup the repo
+
         val fileRepo = FileRepository.getInstance()
         fileRepo.localFileProvider = fileProvider
         this.viewModel.fileRepo = fileRepo
@@ -100,7 +108,7 @@ class BrowserActivity: BaseActivity() {
         // if the list of files is empty on initialization,
         // then load the root
         if (this.viewModel.files?.value == null)
-            this.viewModel.openDir(rootFileInfo)
+            this.viewModel.openDir(rootFileInfo, isGDrive)
 
         // Bind the progress indicator with the isBusy state
         this.viewModel.isBusy.observe(this, Observer {
@@ -152,6 +160,7 @@ class BrowserActivity: BaseActivity() {
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        this.viewModel.signOut()
         this.finish()
         return true
     }

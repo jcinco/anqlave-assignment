@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.jcinco.j5anqlaveassignment.GlobalKeys
 import com.jcinco.j5anqlaveassignment.data.model.file.FileInfo
+import com.jcinco.j5anqlaveassignment.data.providers.file.GDriveFileProvider
 import com.jcinco.j5anqlaveassignment.data.repositories.auth.IAuthRepository
 import com.jcinco.j5anqlaveassignment.data.repositories.file.IFileRepository
 import com.jcinco.j5anqlaveassignment.data.services.sec.FileEncryptionService
@@ -51,33 +52,44 @@ class FileBrowserViewModel: ViewModel() {
      *
      * @param FileInfo - the file info of the directory
      */
-    fun openDir(fileInfo: FileInfo) {
+    fun openDir(fileInfo: FileInfo, isHttp: Boolean = false) {
         // if current dir is not null, push it into the back stack
         this.dirStack.push(currentDir)
         this.updateCurrent(fileInfo)
-        getFiles(currentDir)
+        getFiles(currentDir, isHttp)
     }
 
     /**
      * Gets the files fromt a directory file
      */
-    fun getFiles(fileInfo: FileInfo? = null) {
+    fun getFiles(fileInfo: FileInfo? = null, isHttp: Boolean = false) {
         // if the file info is not a directory, do not proceed.
         if (fileInfo?.isDir == false)
             return
 
-        // Stop any running coroutine job
-        this.stopActiveJob()
         this.isBusy.value = true
-        //this.files.value = ArrayList<FileInfo>() // empty list
+        if (!isHttp) {
+            // Stop any running coroutine job
+            this.stopActiveJob()
 
-        // initialize by fetching the root folder list of files
-        this.job = Coroutines.runInBackground(
-            { fileRepo.getFiles(fileInfo) },
-            {
-                files.value = it
-                this.isBusy.value = false
-            })
+            // initialize by fetching the root folder list of files
+            this.job = Coroutines.runInBackground(
+                { fileRepo.getFiles(fileInfo) },
+                {
+                    files.value = it
+                    this.isBusy.value = false
+                })
+        }
+        else {
+
+            fileRepo.getFiles(fileInfo) {list ->
+                if (true) {
+                    files?.value = list
+                    this.isBusy.value = false
+                }
+
+            }
+        }
     }
 
     /**
@@ -163,7 +175,8 @@ class FileBrowserViewModel: ViewModel() {
     }
 
     fun signOut() {
-        this.authRepo?.invalidate("")
+        if (this.authRepo != null)
+            this.authRepo?.invalidate("")
     }
 
 
