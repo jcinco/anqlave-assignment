@@ -25,6 +25,12 @@ class GDriveActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setupDataBinding()
+        // if data is not null, we assume that a redirect from google launched this activity
+        if (intent.data != null) {
+            this.viewModel.handleOAuthResponse(intent)
+        }
+        else
+            this.viewModel.requestAuth()
     }
 
     private fun setupDataBinding() {

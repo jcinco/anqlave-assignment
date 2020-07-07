@@ -1,5 +1,6 @@
 package com.jcinco.j5anqlaveassignment.data.providers.auth
 
+import android.content.Intent
 import com.jcinco.j5anqlaveassignment.GlobalKeys
 import com.jcinco.j5anqlaveassignment.data.services.sec.FileEncryptionService
 import com.jcinco.j5anqlaveassignment.data.services.sec.KeyStoreService
@@ -77,5 +78,9 @@ public class LocalAuthProvider: IAuthProvider {
 
     override fun isAuthenticated(): Boolean {
         return this.isAuth
+    }
+
+    override fun handleAuthResponse(intent: Intent?) {
+        TODO("Not yet implemented")
     }
 }

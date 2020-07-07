@@ -1,0 +1,6 @@
+{
+  "client_id": "533923776823-3c1m7m99imj2sib1p00be8io7d5abbrh.apps.googleusercontent.com",
+  "api_key": "AIzaSyAv6NDGLfvCzBQEUQgHfULKM3_oN-kW9VE",
+  "redirect_uri": "com.jcinco.j5anqlaveassignment:/oauth2redirect",
+  "scope": "https://www.googleapis.com/auth/drive"
+}

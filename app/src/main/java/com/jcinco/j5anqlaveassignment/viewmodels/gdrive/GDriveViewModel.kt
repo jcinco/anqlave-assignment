@@ -1,6 +1,7 @@
 package com.jcinco.j5anqlaveassignment.viewmodels.gdrive
 
 import android.content.Context
+import android.content.Intent
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.jcinco.j5anqlaveassignment.data.repositories.auth.AuthRepository
@@ -28,11 +29,14 @@ class GDriveViewModel: ViewModel() {
         this.hasAccess.value = this.hasAccessToken()
     }
 
-
     fun requestAuth() {
+        // run OAuth request
         this.authRepository?.authenticate("",""){}
     }
 
+    fun handleOAuthResponse(intent: Intent?) {
+        this.authRepository?.handleAuthResponse(intent)
+    }
 
     private fun hasAccessToken():Boolean {
         val sharedPref = SharedPrefUtil.getInstance()

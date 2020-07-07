@@ -1,5 +1,6 @@
 package com.jcinco.j5anqlaveassignment.data.repositories.auth
 
+import android.content.Intent
 import com.jcinco.j5anqlaveassignment.data.providers.auth.IAuthProvider
 import com.jcinco.j5anqlaveassignment.data.providers.auth.LocalAuthProvider
 
@@ -46,6 +47,10 @@ class AuthRepository private constructor(): IAuthRepository {
     override fun invalidate(username: String) {
         authService.invalidate(username, {})
         remoteAuthService.invalidate(username, {})
+    }
+
+    override fun handleAuthResponse(intent: Intent?) {
+        authService.handleAuthResponse(intent)
     }
 
 
