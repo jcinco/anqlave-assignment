@@ -2,11 +2,8 @@ package com.jcinco.j5anqlaveassignment.data.providers.file
 
 import android.content.Context
 import com.jcinco.j5anqlaveassignment.data.model.file.FileInfo
-import com.jcinco.j5anqlaveassignment.data.model.file.GDFile
 import com.jcinco.j5anqlaveassignment.rest.RetrofitFactory
-import com.jcinco.j5anqlaveassignment.rest.gdrive.GDGetFiles
-import com.jcinco.j5anqlaveassignment.rest.oauth.OAuthInterceptor
-import retrofit2.Call
+
 
 class GDriveFileProvider(context: Context): FileProvider(context) {
     override val ROOT_FOLDER: String
