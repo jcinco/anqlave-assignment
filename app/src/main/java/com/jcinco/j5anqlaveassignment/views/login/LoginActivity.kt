@@ -40,7 +40,7 @@ public class LoginActivity : AppCompatActivity() {
 
         // inject the dependencies
         viewModel.authRepository = AuthRepository.getInstance()
-        (viewModel.authRepository as AuthRepository).localAuthService = LocalAuthProvider.getInstance()
+        (viewModel.authRepository as AuthRepository).authService = LocalAuthProvider.getInstance()
 
 
 

@@ -17,6 +17,7 @@ public class LocalAuthProvider: IAuthProvider {
     }
 
     val keyStoreService = KeyStoreService.getInstance()
+    private var isAuth = false
 
     init {
         // setup the default credentials on initialization
@@ -61,14 +62,20 @@ public class LocalAuthProvider: IAuthProvider {
 
             // pass the comparison result to the callback. if the encrypted password matches
             // with the supplied password, then the user is allowed to proceed.
-            callback(localPassword.equals(hashedPassword) && localUsername.equals(hashedUsername))
+            this.isAuth = localPassword.equals(hashedPassword) && localUsername.equals(hashedUsername)
         }
         else {
-            callback(false)
+            this.isAuth = false
         }
+        callback(this.isAuth)
     }
 
     override fun invalidate(username: String, callback: (success: Boolean) -> Unit?) {
+        this.isAuth = false
         callback(false)
+    }
+
+    override fun isAuthenticated(): Boolean {
+        return this.isAuth
     }
 }
