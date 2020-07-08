@@ -1,10 +1,11 @@
 package com.jcinco.j5anqlaveassignment.data.repositories.auth
 
+import android.content.Intent
 import com.jcinco.j5anqlaveassignment.data.providers.auth.IAuthProvider
 import com.jcinco.j5anqlaveassignment.data.providers.auth.LocalAuthProvider
 
 // The single source of truth
-public class AuthRepository private constructor(): IAuthRepository {
+class AuthRepository private constructor(): IAuthRepository {
 
     companion object {
         private const val TAG = "AuthRepository"
@@ -17,7 +18,7 @@ public class AuthRepository private constructor(): IAuthRepository {
     }
 
     //
-    lateinit var localAuthService: IAuthProvider
+    lateinit var authService: IAuthProvider
     lateinit var remoteAuthService: IAuthProvider
 
 
@@ -30,8 +31,8 @@ public class AuthRepository private constructor(): IAuthRepository {
      */
     override fun authenticate(username:String, password:String, callback: (success:Boolean)->Unit?) {
         // First check for local info on credentials.
-        if (localAuthService != null) {
-            localAuthService?.authenticate(username, password, callback)
+        if (authService != null) {
+            authService?.authenticate(username, password, callback)
         }
         else if (remoteAuthService != null) {
             remoteAuthService?.authenticate(username, password, callback)
@@ -41,6 +42,18 @@ public class AuthRepository private constructor(): IAuthRepository {
             callback(false)
         }
 
+    }
+
+    override fun invalidate(username: String, callback: (success: Boolean) -> Unit?) {
+        authService.invalidate(username, callback)
+    }
+
+    override fun handleAuthResponse(intent: Intent?) {
+        authService.handleAuthResponse(intent)
+    }
+
+    override fun getAuthorizationHeader(): String? {
+        return authService.getAuthorizationHeader()
     }
 
 

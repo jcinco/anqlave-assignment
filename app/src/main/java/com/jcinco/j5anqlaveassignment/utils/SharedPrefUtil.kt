@@ -23,20 +23,30 @@ class SharedPrefUtil {
     get() = _context
 
 
-    private fun getPref(): SharedPreferences? {
-        return _context?.getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE)
+
+    fun getPref(name: String): SharedPreferences? {
+        return _context?.getSharedPreferences(name, Context.MODE_PRIVATE)
 
     }
 
 
     fun save(key:String, value: String): Boolean {
         if (context != null) {
-            val pref = getPref()
+            val pref = getPref(SHARED_PREF_NAME)
             with(pref?.edit()) {
                 this?.putString(key, value)
                 this?.commit()
             }
             return true
+        }
+        return false
+    }
+
+    fun remove(key:String): Boolean {
+        if (context != null) {
+            val pref = getPref(SHARED_PREF_NAME)
+            return pref?.edit()?.remove(key)?.commit() ?: false
+
         }
         return false
     }
@@ -49,7 +59,7 @@ class SharedPrefUtil {
      */
     fun get(key:String): String? {
         if (context != null) {
-            val pref = getPref()
+            val pref = getPref(SHARED_PREF_NAME)
             return pref?.getString(key, null)
         }
         return null

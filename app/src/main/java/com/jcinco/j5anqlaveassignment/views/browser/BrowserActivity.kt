@@ -15,9 +15,13 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.jcinco.j5anqlaveassignment.R
 import com.jcinco.j5anqlaveassignment.data.model.file.FileInfo
+import com.jcinco.j5anqlaveassignment.data.providers.auth.LocalAuthProvider
+import com.jcinco.j5anqlaveassignment.data.providers.auth.OAuthProvider
+import com.jcinco.j5anqlaveassignment.data.providers.file.GDriveFileProvider
 import com.jcinco.j5anqlaveassignment.data.providers.file.IFileProvider
 import com.jcinco.j5anqlaveassignment.data.providers.file.LocalFileProvider
 import com.jcinco.j5anqlaveassignment.data.providers.file.MediaStoreFileProvider
+import com.jcinco.j5anqlaveassignment.data.repositories.auth.AuthRepository
 import com.jcinco.j5anqlaveassignment.data.repositories.file.FileRepository
 import com.jcinco.j5anqlaveassignment.databinding.ActivityFileBrowserBinding
 import com.jcinco.j5anqlaveassignment.viewmodels.ViewModelFactory
@@ -28,6 +32,7 @@ import info.androidhive.fontawesome.FontDrawable
 import kotlinx.android.synthetic.main.activity_file_browser.*
 import kotlinx.android.synthetic.main.files_fragment.*
 import java.io.File
+import java.security.AuthProvider
 
 
 class BrowserActivity: BaseActivity() {
@@ -63,27 +68,35 @@ class BrowserActivity: BaseActivity() {
         binding.setLifecycleOwner(this)
         binding.viewModel = this.viewModel
 
+        this.viewModel.authRepo = AuthRepository.getInstance()
+
         // Recycler view optimization attempts :D
         this.recyclerView.setHasFixedSize(true)
         this.recyclerView.setItemViewCacheSize(20)
         this.recyclerView.isDrawingCacheEnabled = true
         this.recyclerView.drawingCacheQuality = View.DRAWING_CACHE_QUALITY_HIGH
 
-
         // Add the toolbar
         val bar = this.toolbar
         setSupportActionBar(bar)
 
-       // this.actionBar.setIcon(iconDrawable)
+        val isGDrive = intent.getBooleanExtra("GDRIVE", false)
 
-        // set the provider to MediaStoreFileProvider for versions greater than P
-        // Environment.getExternalStorageDir() has been deprecated in SDK 29
-        fileProvider =
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P)
+        if (isGDrive) {
+            fileProvider = GDriveFileProvider(applicationContext)
+            // needed for sign out
+            (viewModel.authRepo as AuthRepository).authService = OAuthProvider(applicationContext)
+        }
+        else {
+            // Needed for sign out
+            (viewModel.authRepo as AuthRepository).authService = LocalAuthProvider()
+            // set the provider to MediaStoreFileProvider for versions greater than P
+            // Environment.getExternalStorageDir() has been deprecated in SDK 29
+            fileProvider = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P)
                 MediaStoreFileProvider(applicationContext)
             else
                 LocalFileProvider(applicationContext)
-
+        }
         // Setup the repo
         val fileRepo = FileRepository.getInstance()
         fileRepo.localFileProvider = fileProvider
@@ -96,7 +109,7 @@ class BrowserActivity: BaseActivity() {
         // if the list of files is empty on initialization,
         // then load the root
         if (this.viewModel.files?.value == null)
-            this.viewModel.openDir(rootFileInfo)
+            this.viewModel.openDir(rootFileInfo, isGDrive)
 
         // Bind the progress indicator with the isBusy state
         this.viewModel.isBusy.observe(this, Observer {
@@ -132,30 +145,50 @@ class BrowserActivity: BaseActivity() {
 
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val backIcon = FontDrawable(applicationContext,
+            R.string.fa_arrow_left_solid, true, false)
         val signOutIcon = FontDrawable(applicationContext,
             R.string.fa_sign_out_alt_solid, true, false)
         signOutIcon.textSize = 30f
         signOutIcon.clearColorFilter()
         signOutIcon.setTextColor(R.color.white)
 
+        backIcon.textSize = 30f
+        backIcon.setTextColor(R.color.white)
 
         menuInflater.inflate(R.menu.browser_menu, menu)
-        val item = menu?.getItem(0)
-        item?.icon = signOutIcon
+
+        this.supportActionBar?.setHomeAsUpIndicator(backIcon)
+        this.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+
+        val signOut = menu?.getItem(0)
+        signOut?.icon = signOutIcon
 
         return true
     }
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        this.finish()
+        if (item.itemId == android.R.id.home) {
+            this.viewModel.goBack()
+        }
+        else {
+            this.viewModel.signOut() {
+                if (it) this.finish()
+            }
+        }
         return true
     }
 
 
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
-        if (isContextSelection && !this.viewModel?.isBusy?.value!!) {
+        if (isContextSelection
+            && !this.viewModel?.isBusy?.value!!
+            && !intent.getBooleanExtra("GDRIVE", false)) {
+            // For now, encryption and decryption does not cater to GDrive
+
            if (item?.itemId == 200) { // encrypt
                this.viewModel.encrypt()
            }
@@ -172,7 +205,7 @@ class BrowserActivity: BaseActivity() {
      * Trap the system nav back button press and use it to
      * navigate up a folder in our browser.
      */
-    override fun onBackPressed() {
+    /*override fun onBackPressed() {
         this.viewModel.goBack()
-    }
+    }*/
 }

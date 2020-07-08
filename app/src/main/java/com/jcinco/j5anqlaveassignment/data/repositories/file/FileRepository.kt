@@ -48,16 +48,18 @@ class FileRepository private constructor(): IFileRepository {
     override fun getFiles(fileInfo: FileInfo?) : ArrayList<FileInfo> {
         var list: ArrayList<FileInfo>? = ArrayList<FileInfo>()
 
-        if (this.mode == MODE_LOCAL) {
-            if (fileInfo != null) {
-                list = localFileProvider.getFiles("${fileInfo.path}")
-            }
+        if (fileInfo != null) {
+            list = localFileProvider.getFiles("${fileInfo.path}")
         }
-        else {
-
-        }
-        return list!!
+        return list ?: ArrayList<FileInfo>()
     }
 
+    override fun getFiles(fileInfo: FileInfo?, callback: (ArrayList<FileInfo>) -> Unit?) {
+        if (fileInfo != null) {
+            localFileProvider.getFiles(fileInfo?.path ?: "") {
+                callback(it)
+            }
+        }
+    }
 
 }

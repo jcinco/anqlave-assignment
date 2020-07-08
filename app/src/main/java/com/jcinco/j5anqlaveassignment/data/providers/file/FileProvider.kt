@@ -1,10 +1,11 @@
 package com.jcinco.j5anqlaveassignment.data.providers.file
 
+import android.content.Context
 import com.jcinco.j5anqlaveassignment.data.model.file.FileInfo
 
-class RemoteFileProvider: IFileProvider {
+abstract class FileProvider(val context: Context): IFileProvider {
     override fun getFiles(path: String): ArrayList<FileInfo>? {
-        return null
+        TODO("Not yet implemented")
     }
 
     override fun getFiles(path: String, callback: (ArrayList<FileInfo>) -> Unit?) {
@@ -12,14 +13,14 @@ class RemoteFileProvider: IFileProvider {
     }
 
     override fun isDir(path: String): Boolean {
-        return false
-    }
-
-    override fun getStorages(): ArrayList<FileInfo>? {
-        return null
+        TODO("Not yet implemented")
     }
 
     override fun isAvailable(): Boolean {
-        return false
+        TODO("Not yet implemented")
+    }
+
+    override fun getStorages(): ArrayList<FileInfo>? {
+        TODO("Not yet implemented")
     }
 }
