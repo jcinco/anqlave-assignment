@@ -68,35 +68,36 @@ class BrowserActivity: BaseActivity() {
         binding.setLifecycleOwner(this)
         binding.viewModel = this.viewModel
 
+        this.viewModel.authRepo = AuthRepository.getInstance()
+
         // Recycler view optimization attempts :D
         this.recyclerView.setHasFixedSize(true)
         this.recyclerView.setItemViewCacheSize(20)
         this.recyclerView.isDrawingCacheEnabled = true
         this.recyclerView.drawingCacheQuality = View.DRAWING_CACHE_QUALITY_HIGH
 
-
         // Add the toolbar
         val bar = this.toolbar
         setSupportActionBar(bar)
-
 
         val isGDrive = intent.getBooleanExtra("GDRIVE", false)
 
         if (isGDrive) {
             fileProvider = GDriveFileProvider(applicationContext)
-
+            // needed for sign out
+            (viewModel.authRepo as AuthRepository).authService = OAuthProvider(applicationContext)
         }
-        else
-
+        else {
+            // Needed for sign out
+            (viewModel.authRepo as AuthRepository).authService = LocalAuthProvider()
             // set the provider to MediaStoreFileProvider for versions greater than P
             // Environment.getExternalStorageDir() has been deprecated in SDK 29
             fileProvider = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P)
-                    MediaStoreFileProvider(applicationContext)
-                else
-                    LocalFileProvider(applicationContext)
-
+                MediaStoreFileProvider(applicationContext)
+            else
+                LocalFileProvider(applicationContext)
+        }
         // Setup the repo
-
         val fileRepo = FileRepository.getInstance()
         fileRepo.localFileProvider = fileProvider
         this.viewModel.fileRepo = fileRepo
@@ -144,24 +145,39 @@ class BrowserActivity: BaseActivity() {
 
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        val backIcon = FontDrawable(applicationContext,
+            R.string.fa_arrow_left_solid, true, false)
         val signOutIcon = FontDrawable(applicationContext,
             R.string.fa_sign_out_alt_solid, true, false)
         signOutIcon.textSize = 30f
         signOutIcon.clearColorFilter()
         signOutIcon.setTextColor(R.color.white)
 
+        backIcon.textSize = 30f
+        backIcon.setTextColor(R.color.white)
 
         menuInflater.inflate(R.menu.browser_menu, menu)
-        val item = menu?.getItem(0)
-        item?.icon = signOutIcon
+
+        this.supportActionBar?.setHomeAsUpIndicator(backIcon)
+        this.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+
+        val signOut = menu?.getItem(0)
+        signOut?.icon = signOutIcon
 
         return true
     }
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        this.viewModel.signOut()
-        this.finish()
+        if (item.itemId == android.R.id.home) {
+            this.viewModel.goBack()
+        }
+        else {
+            this.viewModel.signOut() {
+                if (it) this.finish()
+            }
+        }
         return true
     }
 
@@ -185,7 +201,7 @@ class BrowserActivity: BaseActivity() {
      * Trap the system nav back button press and use it to
      * navigate up a folder in our browser.
      */
-    override fun onBackPressed() {
+    /*override fun onBackPressed() {
         this.viewModel.goBack()
-    }
+    }*/
 }

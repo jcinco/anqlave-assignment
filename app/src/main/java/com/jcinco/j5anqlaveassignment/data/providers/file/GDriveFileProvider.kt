@@ -39,15 +39,19 @@ class GDriveFileProvider(context: Context): FileProvider(context) {
         val retrofit = factory.createClient(BASE_URL, factory.getOAuthHttpClient(interceptor))
         val getFiles = retrofit.create(GDGetFiles::class.java)
         val call = getFiles.files()
-        val listener = object: Callback<Any?> {
+        val listener = object: Callback<GDFile> {
             override fun onResponse(
-                call: Call<Any?>,
-                response: Response<Any?>
+                call: Call<GDFile>,
+                response: Response<GDFile>
             ) {
-                callback(ArrayList<FileInfo>())
+                val file = response.body()
+                val list = file?.items?.map {
+                    FileInfo(it?.title, it?.id, it?.modifiedDate, it?.items != null, null)
+                } as? ArrayList<FileInfo>
+                callback(list ?: ArrayList<FileInfo>())
             }
 
-            override fun onFailure(call: Call<Any?>, t: Throwable) {
+            override fun onFailure(call: Call<GDFile>, t: Throwable) {
                 TODO("Not yet implemented")
             }
         }

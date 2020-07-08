@@ -44,9 +44,8 @@ class AuthRepository private constructor(): IAuthRepository {
 
     }
 
-    override fun invalidate(username: String) {
-        authService.invalidate(username, {})
-        remoteAuthService.invalidate(username, {})
+    override fun invalidate(username: String, callback: (success: Boolean) -> Unit?) {
+        authService.invalidate(username, callback)
     }
 
     override fun handleAuthResponse(intent: Intent?) {

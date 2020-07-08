@@ -31,13 +31,13 @@ class MainActivity : BaseActivity() {
         // show login screen
         val intent = Intent(this.applicationContext, LoginActivity::class.java)
         this.startActivity(intent)
-        this.finish()
+        //this.finish()
     }
 
     private fun showGDrive() {
         val intent = Intent(this.applicationContext, GDriveActivity::class.java)
         this.startActivity(intent)
-        this.finish()
+        //this.finish()
     }
 
 

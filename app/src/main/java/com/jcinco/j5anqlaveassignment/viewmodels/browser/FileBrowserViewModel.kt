@@ -1,5 +1,6 @@
 package com.jcinco.j5anqlaveassignment.viewmodels.browser
 
+import androidx.lifecycle.MethodCallsLogger
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.jcinco.j5anqlaveassignment.GlobalKeys
@@ -11,7 +12,10 @@ import com.jcinco.j5anqlaveassignment.data.services.sec.FileEncryptionService
 import com.jcinco.j5anqlaveassignment.data.services.sec.KeyStoreService
 import com.jcinco.j5anqlaveassignment.utils.Coroutines
 import com.jcinco.j5anqlaveassignment.utils.SharedPrefUtil
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
@@ -174,9 +178,13 @@ class FileBrowserViewModel: ViewModel() {
         }
     }
 
-    fun signOut() {
+    fun signOut(callback: (Boolean)->Unit?) {
         if (this.authRepo != null)
-            this.authRepo?.invalidate("")
+            CoroutineScope(Dispatchers.IO).launch {
+                authRepo?.invalidate("") {
+                    callback(it)
+                }
+            }
     }
 
 

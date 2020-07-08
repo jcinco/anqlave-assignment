@@ -33,24 +33,31 @@ class GDriveActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+
+        this.viewModel.requestAuthCallback = {
+            this.onAuthRequestResult(it)
+        }
         // if data is not null, we assume that a redirect from google launched this activity
         if (intent.data != null) {
             this.viewModel.handleOAuthResponse(intent)
         }
         else
-            this.viewModel.requestAuth(){
-                if (it) {
-                    val i = Intent(applicationContext, BrowserActivity::class.java)
-                    i.putExtra("GDRIVE", true)
-                    startActivity(i)
-                    finish()
-                }
-                else {
-                    Toast.makeText(applicationContext, "Failed to get permission to access GDrive", Toast.LENGTH_LONG).show()
-                    finish()
-                }
-            }
+            this.viewModel.requestAuth(){}
     }
+
+    private fun onAuthRequestResult(success: Boolean) {
+        if (success) {
+            val i = Intent(applicationContext, BrowserActivity::class.java)
+            i.putExtra("GDRIVE", true)
+            startActivity(i)
+            finish()
+        }
+        else {
+            Toast.makeText(applicationContext, "Failed to get permission to access GDrive", Toast.LENGTH_LONG).show()
+            finish()
+        }
+    }
+
 
     private fun setupDataBinding() {
         val authRepo = AuthRepository.getInstance()

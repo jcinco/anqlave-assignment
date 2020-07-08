@@ -14,11 +14,19 @@ import com.jcinco.j5anqlaveassignment.rest.oauth.OAuthAPI
 import com.jcinco.j5anqlaveassignment.rest.oauth.OAuthInterceptor
 import com.jcinco.j5anqlaveassignment.rest.oauth.OAuthToken
 import com.jcinco.j5anqlaveassignment.utils.SharedPrefUtil
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class OAuthProvider(val context: Context): IAuthProvider {
+
+    companion object {
+        var authCallback: ((Boolean) -> Unit?)? = null
+    }
+
     private val ACCESS_TOKEN = "ACCESS_TOKEN"
     private val OAUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
     private val BASE_URL = "https://www.googleapis.com/"
@@ -31,8 +39,6 @@ class OAuthProvider(val context: Context): IAuthProvider {
     private val kCode = "code"
     private var oauthToken: OAuthToken? = null
 
-    lateinit var requestorCallback: (success:Boolean)->Unit?
-
 
     override fun authenticate(
         username: String,
@@ -40,7 +46,7 @@ class OAuthProvider(val context: Context): IAuthProvider {
         callback: (success: Boolean) -> Unit?
     ) {
         if (!hasAccessToken()) {
-            this.requestorCallback = callback
+            authCallback = callback
             // Request
             request()
         }
@@ -98,20 +104,27 @@ class OAuthProvider(val context: Context): IAuthProvider {
         val callback = object: Callback<OAuthToken> {
             var self: OAuthProvider? = null
             override fun onFailure(call: Call<OAuthToken>, t: Throwable) {
-                requestorCallback(false)
+                CoroutineScope(Dispatchers.Main).launch {
+                    onOAuthRequest(false)
+                }
             }
 
             override fun onResponse(call: Call<OAuthToken>, response: Response<OAuthToken>) {
-                oauthToken = response.body()
-                secureSaveTokens(oauthToken)
-                // save the token and respond successful
-                self?.requestorCallback?.invoke(true)
+                    oauthToken = response.body()
+                    secureSaveTokens(oauthToken)
             }
         }
         callback.self = this
         call.enqueue(callback)
     }
 
+
+    private fun onOAuthRequest(success: Boolean) {
+        if (authCallback != null) {
+            authCallback?.invoke(success)
+            authCallback = null
+        }
+    }
 
 
     fun getTokenType():String {
@@ -152,6 +165,8 @@ class OAuthProvider(val context: Context): IAuthProvider {
         sharePref.save(GlobalKeys.REFRESH_TOKEN, encRefreshToken.second)
         sharePref.save(GlobalKeys.RT_IV, encRefreshToken.first)
 
+        // save the token and respond successful
+        onOAuthRequest(true)
     }
 
     private fun getPassword(): String {
@@ -186,7 +201,8 @@ class OAuthProvider(val context: Context): IAuthProvider {
 
     private fun hasAccessToken():Boolean {
         val sharedPref = SharedPrefUtil.getInstance()
-        return sharedPref.get(GlobalKeys.ACCESS_TOKEN) != null
+        val token = sharedPref.get(GlobalKeys.ACCESS_TOKEN)
+        return token != null
     }
 
 

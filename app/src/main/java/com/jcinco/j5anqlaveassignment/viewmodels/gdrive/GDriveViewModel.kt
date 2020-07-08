@@ -10,6 +10,8 @@ import com.jcinco.j5anqlaveassignment.utils.SharedPrefUtil
 class GDriveViewModel: ViewModel() {
     private val ACCESS_TOKEN = "ACCESS_TOKEN"
 
+    lateinit var requestAuthCallback: (success: Boolean)->Unit?
+
     var authRepository: AuthRepository? = null
     set(value) {
         field = value
@@ -31,7 +33,9 @@ class GDriveViewModel: ViewModel() {
 
     fun requestAuth(callback: (success: Boolean)->Unit?) {
         // run OAuth request
-        this.authRepository?.authenticate("","", callback)
+        this.authRepository?.authenticate("","") {
+            requestAuthCallback(it)
+        }
     }
 
     fun handleOAuthResponse(intent: Intent?) {

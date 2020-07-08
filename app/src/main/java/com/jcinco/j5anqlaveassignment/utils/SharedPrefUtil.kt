@@ -45,8 +45,8 @@ class SharedPrefUtil {
     fun remove(key:String): Boolean {
         if (context != null) {
             val pref = getPref(SHARED_PREF_NAME)
-            pref?.edit()?.remove(key)
-            return true
+            return pref?.edit()?.remove(key)?.commit() ?: false
+
         }
         return false
     }
