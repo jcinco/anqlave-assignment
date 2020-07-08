@@ -113,7 +113,8 @@ class FileBrowserViewModel: ViewModel() {
      */
     fun encrypt() {
         if (this.selectedFile != null
-            && this.selectedFile?.isEncrypted != true) {
+            && this.selectedFile?.isEncrypted != true
+            && this.selectedFile?.file != null) {
 
             this.stopActiveJob()
             this.isBusy.value = true
@@ -148,7 +149,8 @@ class FileBrowserViewModel: ViewModel() {
      */
     fun decrypt() {
         if (this.selectedFile != null
-            && this.selectedFile?.isEncrypted == true) {
+            && this.selectedFile?.isEncrypted == true
+            && this.selectedFile?.file != null) {
 
             this.stopActiveJob()
             this.isBusy.value = true

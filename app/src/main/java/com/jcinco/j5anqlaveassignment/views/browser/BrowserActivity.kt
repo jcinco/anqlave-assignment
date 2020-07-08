@@ -184,7 +184,11 @@ class BrowserActivity: BaseActivity() {
 
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
-        if (isContextSelection && !this.viewModel?.isBusy?.value!!) {
+        if (isContextSelection
+            && !this.viewModel?.isBusy?.value!!
+            && !intent.getBooleanExtra("GDRIVE", false)) {
+            // For now, encryption and decryption does not cater to GDrive
+
            if (item?.itemId == 200) { // encrypt
                this.viewModel.encrypt()
            }
