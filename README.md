@@ -139,4 +139,4 @@ class FileEncryptionService {
 
 ### US4 [Backlog] - As a user, I should be able to browse my GDrive files.
 #### Activity 
-![img](https://github.com/jcinco/anqlave-assignment/blob/master/uml/oauth_activity.png)
+![img](https://github.com/jcinco/anqlave-assignment/blob/gdrive-feature/uml/oauth_activity.png)
