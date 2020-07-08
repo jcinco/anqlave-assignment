@@ -92,7 +92,7 @@ class BrowserActivity: BaseActivity() {
             (viewModel.authRepo as AuthRepository).authService = LocalAuthProvider()
             // set the provider to MediaStoreFileProvider for versions greater than P
             // Environment.getExternalStorageDir() has been deprecated in SDK 29
-            fileProvider = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P)
+            fileProvider = if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P+1)
                 MediaStoreFileProvider(applicationContext)
             else
                 LocalFileProvider(applicationContext)
