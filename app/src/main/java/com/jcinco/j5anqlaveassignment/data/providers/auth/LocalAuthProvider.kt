@@ -73,7 +73,7 @@ class LocalAuthProvider: IAuthProvider {
 
     override fun invalidate(username: String, callback: (success: Boolean) -> Unit?) {
         this.isAuth = false
-        callback(false)
+        callback(true)
     }
 
     override fun isAuthenticated(): Boolean {
